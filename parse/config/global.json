@@ -1,0 +1,22 @@
+{
+    "applications": {
+        "Volley": {
+            "applicationId": "elq3rKjkGscvsbeeb21QP0GkuMfuEe3Zb8f3bvcq", 
+            "masterKey": "oB1NFbUgNh19AQC8MfEV3qCOec9BtvVuBKZQnzVV"
+        }, 
+        "Volley Messenger": {
+            "applicationId": "1RAToTZOshvcDzr2ahHAhPqTzabpc8WjLK9V2ymz", 
+            "masterKey": "GZvgripXQVXK21lfGxaFW1SNaT0dHuIHOEQTutwP"
+        }, 
+        "VolleyMessenger": {
+            "applicationId": "1RAToTZOshvcDzr2ahHAhPqTzabpc8WjLK9V2ymz", 
+            "masterKey": "GZvgripXQVXK21lfGxaFW1SNaT0dHuIHOEQTutwP"
+        }, 
+        "_default": {
+            "link": "VolleyMessenger"
+        }
+    }, 
+    "global": {
+        "parseVersion": "1.3.4"
+    }
+}

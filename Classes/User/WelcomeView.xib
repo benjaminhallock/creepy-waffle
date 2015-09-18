@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="8187.4" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8151.3"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="WelcomeView">
+            <connections>
+                <outlet property="imageView" destination="uOb-Ou-rgh" id="iJX-qY-EkV"/>
+                <outlet property="label" destination="lTU-yd-3Jc" id="mPn-FM-GSr"/>
+                <outlet property="view" destination="1" id="3"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="1">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rka-Wf-v14">
+                    <rect key="frame" x="8" y="493" width="110" height="70"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="70" id="vGZ-Mf-s2s"/>
+                    </constraints>
+                    <state key="normal" title="REGISTER" image="signupButton">
+                        <color key="titleColor" red="0.31764705879999999" green="0.70588235290000001" blue="0.64705882349999999" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="titleShadowColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </state>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <integer key="value" value="5"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                    </userDefinedRuntimeAttributes>
+                    <connections>
+                        <action selector="actionRegister:" destination="-1" eventType="touchUpInside" id="60O-Xg-COz"/>
+                    </connections>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7Wf-8f-ELf">
+                    <rect key="frame" x="212" y="507" width="100" height="50"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="100" id="eZi-PH-QXX"/>
+                        <constraint firstAttribute="height" constant="50" id="jNP-uw-LVW"/>
+                    </constraints>
+                    <state key="normal" title="LOGIN" image="loginButton">
+                        <color key="titleColor" red="0.31764705879999999" green="0.70588235290000001" blue="0.64705882349999999" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="titleShadowColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </state>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <integer key="value" value="5"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                    </userDefinedRuntimeAttributes>
+                    <connections>
+                        <action selector="actionLogin:" destination="-1" eventType="touchUpInside" id="DaA-Zf-XSa"/>
+                    </connections>
+                </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Snap Ben" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lTU-yd-3Jc">
+                    <rect key="frame" x="95" y="351" width="131" height="40"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="40" id="Jfn-oG-ZWU"/>
+                        <constraint firstAttribute="width" constant="131" id="mKB-hh-rEe"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="23"/>
+                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="AppIconcut" translatesAutoresizingMaskIntoConstraints="NO" id="uOb-Ou-rgh">
+                    <rect key="frame" x="0.0" y="71" width="320" height="320"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="320" id="kzd-9L-xgt"/>
+                    </constraints>
+                </imageView>
+            </subviews>
+            <color key="backgroundColor" red="1" green="0.16078431369999999" blue="0.28627450980000002" alpha="1" colorSpace="calibratedRGB"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="uOb-Ou-rgh" secondAttribute="trailing" id="Akd-af-KPq"/>
+                <constraint firstItem="uOb-Ou-rgh" firstAttribute="top" secondItem="1" secondAttribute="top" constant="71" id="Cec-Cs-idS"/>
+                <constraint firstItem="uOb-Ou-rgh" firstAttribute="centerX" secondItem="lTU-yd-3Jc" secondAttribute="centerX" id="JIF-W5-iHe"/>
+                <constraint firstItem="7Wf-8f-ELf" firstAttribute="trailing" secondItem="1" secondAttribute="trailingMargin" id="Kxq-no-2Gi"/>
+                <constraint firstItem="7Wf-8f-ELf" firstAttribute="leading" secondItem="Rka-Wf-v14" secondAttribute="trailing" constant="94" id="PZa-II-EMq"/>
+                <constraint firstAttribute="bottom" secondItem="Rka-Wf-v14" secondAttribute="bottom" constant="5" id="QUD-G3-50P"/>
+                <constraint firstAttribute="bottom" secondItem="7Wf-8f-ELf" secondAttribute="bottom" constant="11" id="Ydg-4C-NX5"/>
+                <constraint firstItem="lTU-yd-3Jc" firstAttribute="bottom" secondItem="uOb-Ou-rgh" secondAttribute="bottom" id="al7-jc-kRs"/>
+                <constraint firstItem="Rka-Wf-v14" firstAttribute="leading" secondItem="1" secondAttribute="leadingMargin" id="hVk-el-pA6"/>
+                <constraint firstItem="uOb-Ou-rgh" firstAttribute="leading" secondItem="1" secondAttribute="leading" id="yAz-J2-ed9"/>
+            </constraints>
+        </view>
+    </objects>
+    <resources>
+        <image name="AppIconcut" width="512" height="512"/>
+        <image name="loginButton" width="861" height="389"/>
+        <image name="signupButton" width="1034" height="609"/>
+    </resources>
+</document>
