@@ -1,6 +1,5 @@
 
 #import "AppConstant.h"
-#import "UIColor.h"
 
 @implementation AppConstant
 

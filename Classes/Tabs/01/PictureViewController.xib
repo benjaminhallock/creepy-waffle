@@ -20,11 +20,10 @@
             <subviews>
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gLD-px-8oB">
                     <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                    <color key="backgroundColor" red="1" green="0.16078431369999999" blue="0.28627450980000002" alpha="1" colorSpace="calibratedRGB"/>
                 </imageView>
                 <textField opaque="NO" clipsSubviews="YES" alpha="0.59999999999999998" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Message.." textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="kO4-gw-wbo">
                     <rect key="frame" x="0.0" y="305" width="320" height="40"/>
-                    <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
+                    <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="40" id="1e2-sx-hLz"/>
                     </constraints>
@@ -35,31 +34,44 @@
                         <outlet property="delegate" destination="-1" id="xzw-Km-9wK"/>
                     </connections>
                 </textField>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vxg-fj-x8s">
-                    <rect key="frame" x="8" y="28" width="45" height="38"/>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vxg-fj-x8s" userLabel="close">
+                    <rect key="frame" x="8" y="8" width="50" height="50"/>
+                    <color key="backgroundColor" red="1" green="0.16078431369999999" blue="0.28627450980000002" alpha="0.78000000000000003" colorSpace="calibratedRGB"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="38" id="6aQ-jt-Kku"/>
-                        <constraint firstAttribute="width" constant="45" id="8Cb-fc-Q3F"/>
+                        <constraint firstAttribute="height" constant="50" id="d2D-t9-zCN"/>
+                        <constraint firstAttribute="width" constant="50" id="jJh-qN-UVg"/>
                     </constraints>
-                    <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="24"/>
-                    <state key="normal" title="X">
+                    <state key="normal" image="close3">
                         <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <color key="titleShadowColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <integer key="value" value="5"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
                     <connections>
                         <action selector="didPressClose:" destination="-1" eventType="touchUpInside" id="RRs-fU-fTH"/>
                     </connections>
                 </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VhD-s1-IVE">
-                    <rect key="frame" x="228" y="525" width="92" height="44"/>
-                    <color key="backgroundColor" red="1" green="0.16078431369999999" blue="0.28627450980000002" alpha="1" colorSpace="calibratedRGB"/>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VhD-s1-IVE" userLabel="next">
+                    <rect key="frame" x="262" y="510" width="50" height="50"/>
+                    <color key="backgroundColor" red="1" green="0.16078431369999999" blue="0.28627450980000002" alpha="0.78000000000000003" colorSpace="calibratedRGB"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="92" id="EXb-vp-OS9"/>
-                        <constraint firstAttribute="height" constant="44" id="eTp-rz-DYE"/>
+                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="50" id="8Zj-aR-4Nm"/>
+                        <constraint firstAttribute="width" constant="50" id="Hyx-Qk-vIR"/>
+                        <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="50" id="Kzh-k8-9s5"/>
+                        <constraint firstAttribute="height" constant="50" id="sbF-Ju-GPe"/>
                     </constraints>
-                    <state key="normal" title="Send">
+                    <state key="normal" image="Back Button INBOX">
                         <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <integer key="value" value="5"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
                     <connections>
                         <action selector="didPressSendButton:" destination="-1" eventType="touchUpInside" id="eLo-S1-IhK"/>
                     </connections>
@@ -67,19 +79,25 @@
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <constraints>
+                <constraint firstItem="VhD-s1-IVE" firstAttribute="bottom" secondItem="i5M-Pr-FkT" secondAttribute="bottomMargin" id="4GZ-uf-Dmu"/>
                 <constraint firstItem="kO4-gw-wbo" firstAttribute="leading" secondItem="gLD-px-8oB" secondAttribute="leading" id="AAM-Pz-xNQ"/>
                 <constraint firstItem="gLD-px-8oB" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="JoF-VK-uxE"/>
+                <constraint firstAttribute="trailing" secondItem="VhD-s1-IVE" secondAttribute="trailing" constant="8" id="Ng3-6P-faQ"/>
                 <constraint firstAttribute="bottom" secondItem="gLD-px-8oB" secondAttribute="bottom" id="NlQ-no-Pc1"/>
+                <constraint firstItem="vxg-fj-x8s" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="QhE-DF-My6"/>
                 <constraint firstItem="kO4-gw-wbo" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="305" id="SaN-bg-UGy"/>
                 <constraint firstItem="gLD-px-8oB" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="WBc-2m-XA0"/>
-                <constraint firstItem="vxg-fj-x8s" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leadingMargin" id="cbp-ew-7NE"/>
-                <constraint firstItem="VhD-s1-IVE" firstAttribute="trailing" secondItem="kO4-gw-wbo" secondAttribute="trailing" id="jOG-Dt-Ll2"/>
-                <constraint firstAttribute="bottom" secondItem="VhD-s1-IVE" secondAttribute="bottom" constant="-1" id="jSk-gp-Ury"/>
-                <constraint firstItem="vxg-fj-x8s" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="topMargin" constant="20" id="jje-Gx-fFI"/>
+                <constraint firstItem="vxg-fj-x8s" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="8" id="jl3-yx-O7j"/>
+                <constraint firstAttribute="bottom" secondItem="VhD-s1-IVE" secondAttribute="bottom" constant="8" id="jqH-J2-5b3"/>
+                <constraint firstItem="VhD-s1-IVE" firstAttribute="trailing" secondItem="i5M-Pr-FkT" secondAttribute="trailingMargin" id="kSk-D3-VWb"/>
                 <constraint firstAttribute="trailing" secondItem="gLD-px-8oB" secondAttribute="trailing" id="qrj-YQ-8YJ"/>
                 <constraint firstItem="kO4-gw-wbo" firstAttribute="trailing" secondItem="gLD-px-8oB" secondAttribute="trailing" id="r35-aE-Wql"/>
             </constraints>
             <point key="canvasLocation" x="214" y="292"/>
         </view>
     </objects>
+    <resources>
+        <image name="Back Button INBOX" width="33" height="33"/>
+        <image name="close3" width="33" height="33"/>
+    </resources>
 </document>

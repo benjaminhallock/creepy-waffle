@@ -1,10 +1,6 @@
 
-#import <Parse/Parse.h>
-
 #import "AppConstant.h"
-
 #import "messages.h"
-
 #import "utilities.h"
 
 void CreateMessageItem(PFObject *room, NSArray *arrayOfUsers)
@@ -165,7 +161,7 @@ void ClearMessageCounter(PFObject *message)
 				{
                     if (!error)
                     {
-                        //Need to clear orange dot in inbox.
+                        //Need to clear dot in inbox.
                         PostNotification(NOTIFICATION_RELOAD_INBOX);
                     }
                     else

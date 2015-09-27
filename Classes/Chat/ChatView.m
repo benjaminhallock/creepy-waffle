@@ -1,37 +1,30 @@
-#import <Parse/Parse.h>
-#import <ParseUI/ParseUI.h>
 #import "ProgressHUD.h"
 #import "NSDate+TimeAgo.h"
-
 #import "AppConstant.h"
 
-#import "camera.h"
+#import "ChatView.h"
 #import "utilities.h"
 #import "messages.h"
 #import "pushnotification.h"
-#import "UIColor.h"
 #import "CustomCameraView.h"
-#import "CustomCollectionViewCell.h"
-#import "ChatView.h"
-#import "ChatroomUsersView.h"
-#import "AppDelegate.h"
+#import "ActionSheet.h"
+
 #import <MediaPlayer/MediaPlayer.h>
 
-#import <AVKit/AVKit.h>
-#import <AVFoundation/AVFoundation.h>
+@interface ChatView () < CustomCameraDelegate, KLCPopupDelegate >
 
-@interface ChatView () <CustomCameraDelegate>
+@property ActionSheet *actionSheetHolder;
 @property MPMoviePlayerController *moviePlayer;
 @property JSQMessagesBubbleImageFactory *bubbleFactory;
 @property UITapGestureRecognizer *tap;
 @property PFImageView *longPressImageView;
+
 @property BOOL isLoading;
 @property int x;
 @property int intForOrderedPictures;
 @property UIImage *randomImage;
 @property CGPoint startLocation;
 @property UICollectionViewFlowLayout *flowLayoutPictures;
-@property AVPlayer *avplayer;
 @property UIColor *selectedColor;
 
 @property CGFloat rowHeight;
@@ -44,13 +37,9 @@
 @property  BOOL isLoadingPopup;
 @property BOOL isCommentingOnPictures;
 
-@property NSDictionary *pictureToSetId;
 @property NSMutableArray *messages;
 @property NSMutableArray *messageObjects;
 @property NSMutableArray *messageObjectIds;
-@property NSMutableArray *arrayOfAvailableColors;
-@property NSMutableArray *arrayOfSetIdPicturesObjects;
-@property NSMutableArray *arrayOfSetIdComments;
 @property JSQMessagesBubbleImage *outgoingBubbleImageData;
 @property JSQMessagesBubbleImage *incomingBubbleImageData;
 
@@ -72,12 +61,12 @@
 {
     if (self.isCommentingOnPictures)
     {
-        [self sendMessage:text PictureSet:self.selectedSetForPictures];
+        [self sendMessage:text];
         [self actionDismiss];
     }
     else
     {
-        [self sendMessage:text PictureSet:0];
+        [self sendMessage:text];
         [self finishSendingMessageAnimated:YES];
     }
 }
@@ -123,6 +112,9 @@
 - (void)sendBackPictures:(NSArray *)array withBool:(bool)didTakePicture andComment:(NSString *)comment
 {
     self.didSendPhotos = YES;
+
+    __block bool isSendingVideo = false;
+
     PostNotification(NOTIFICATION_CLEAR_CAMERA_STUFF);
 
     NSArray *arrayCopy = [NSArray arrayWithArray:array];
@@ -130,7 +122,6 @@
     PFObject *set = [PFObject objectWithClassName:PF_SET_CLASS_NAME];
     [set setValue:self.room forKey:PF_SET_ROOM];
     [set setValue:[PFUser currentUser] forKey:PF_SET_USER];
-    self.selectedSetForPictures = set;
     _countDownForPictureRefresh = (int)arrayCopy.count;
 
     NSMutableArray *arrayOfPicturesObjectsTemp = [NSMutableArray new];
@@ -150,7 +141,7 @@
 
             picture = [PFObject objectWithClassName:PF_PICTURES_CLASS_NAME];
             UIImage *thumbnail = ResizeImage(image, image.size.width, image.size.height);
-            PFFile *file = [PFFile fileWithName:@"thumbnail.png" data:UIImageJPEGRepresentation(thumbnail, .2)];
+            PFFile *file = [PFFile fileWithName:@"thumbnail.png" data:UIImageJPEGRepresentation(thumbnail, .3)];
             [picture setValue:file forKey:PF_PICTURES_THUMBNAIL];
             [picture setValue:[PFUser currentUser] forKey:PF_PICTURES_USER];
             [picture setValue:self.room forKey:PF_PICTURES_CHATROOM];
@@ -162,6 +153,7 @@
 //      ELSE VIDEO
         else if ([imageOrFile isKindOfClass:[NSDictionary class]])
         {
+            isSendingVideo = true;
             NSDictionary *dic = imageOrFile;
             __block NSString *path = dic.allKeys.firstObject;
             UIImage *thumbnail = dic.allValues.firstObject;
@@ -205,12 +197,19 @@
                  self.x--;
                  _countDownForPictureRefresh--;
 
+                 if (isSendingVideo)
+                 {
+                     SendPushNotification(self.room, @"New Video!");
+                     UpdateMessageCounter(self.room, @"New Video!", arrayOfPicturesObjectsTemp.lastObject);
+                 }
+                 else
+                 {
                  SendPushNotification(self.room, @"New Picture!");
                  UpdateMessageCounter(self.room, @"New Picture!", arrayOfPicturesObjectsTemp.lastObject);
+                }
 
                  [self loadChat];
                  [self finishSendingMessageAnimated:1];
-                 [self scrollToBottomAnimated:1];
                  self.didSendPhotos = NO;
              }
              else
@@ -231,8 +230,6 @@
     button.tintColor = [UIColor benFamousGreen];
     button.imageView.tintColor = [UIColor benFamousGreen];
     self.inputToolbar.contentView.rightBarButtonItem.tintColor = [UIColor blueTintColor];
-
-    self.selectedSetForPictures = nil;
 
     self.inputToolbar.contentView.textView.placeHolderTextColor = [UIColor lightGrayColor];
     self.inputToolbar.contentView.leftBarButtonItem = button;
@@ -282,13 +279,6 @@
 
     if (!msg.isMediaMessage)
     {
-        if ([msg.senderId isEqualToString:self.senderId]) {
-            cell.textView.textColor = [UIColor whiteColor];
-        }
-        else {
-            cell.textView.textColor = [UIColor whiteColor];
-        }
-
         cell.textView.linkTextAttributes = @{ NSForegroundColorAttributeName : cell.textView.textColor,
                                               NSUnderlineStyleAttributeName : @(NSUnderlineStyleSingle | NSUnderlinePatternSolid) };
     }
@@ -355,9 +345,7 @@
 
 - (void)viewDidLoad
 {
-
     [super viewDidLoad];
-
     [self setNavigationBarColor];
 
     //    Set avatar to zero.
@@ -369,9 +357,7 @@
     [JSQMessagesCollectionViewCell registerMenuAction:@selector(delete:)];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(leaveChatroom:) name:NOTIFICATION_LEAVE_CHATROOM object:0];
-
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadChat) name:NOTIFICATION_REFRESH_CHATROOM object:0];
-
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dismiss) name:NOTIFICATION_CAMERA_POPUP object:0];
 
     self.title = self.name;
@@ -399,7 +385,7 @@
     self.didViewJustLoad = YES;
 
     //    [self.collectionView registerClass:[CustomCollectionViewCell class] forCellWithReuseIdentifier:@"Cell"];
-
+    
     //BAR BUTTONS
     UIBarButtonItem *backButton = [[UIBarButtonItem alloc]
                                    initWithTitle: @""
@@ -409,6 +395,7 @@
 
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
     [button setImage:[[UIImage imageNamed:ASSETS_NEW_CAMERASQUARE] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+
     button.tintColor = [UIColor benFamousGreen];
     self.inputToolbar.contentView.leftBarButtonItem = button;
 
@@ -419,22 +406,6 @@
     UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:ASSETS_TYPING] style:UIBarButtonItemStyleDone target:self action:@selector(popUpNames)];
     self.navigationItem.rightBarButtonItem = barButton;
 
-    /*
-     UIView *view1 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 40)];
-     UIButton *buttonNames = [UIButton buttonWithType:UIButtonTypeCustom];
-     buttonNames.titleLabel.text = name_;
-     buttonNames.titleLabel.font = [UIFont fontWithName:@"Helvetica Bold" size:20];
-     [buttonNames addTarget:self action:@selector(popUpNames) forControlEvents:UIControlEventTouchUpInside];
-     [view1 addSubview:buttonNames];
-     self.navigationItem.titleView = view1;
-     self.navigationItem.titleView.frame = view1.frame;
-     */
-
-    if (_isNewChatroomWithPhotos && !_isSendingTextMessage)
-    {
-        [self performSelector:@selector(openTextView) withObject:self afterDelay:.5];
-    }
-
     self.tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(didTap:)];
     self.tap.delegate = self;
 
@@ -443,9 +414,6 @@
     self.messageObjects = [[NSMutableArray alloc] init];
     self.messageObjectIds = [NSMutableArray new];
 
-    //Set up colors to pic from everytime, use same one for first object.
-    self.arrayOfAvailableColors = [NSMutableArray arrayWithArray: [AppConstant arrayOfColors]];
-
     //CURRENT USER
     PFUser *user = [PFUser currentUser];
     self.senderId = user.objectId;
@@ -453,8 +421,6 @@
 
     //BUBBLES
     self.bubbleFactory = [[JSQMessagesBubbleImageFactory alloc] init];
-    self.outgoingBubbleImageData = [self.bubbleFactory outgoingMessagesBubbleImageWithColor:[UIColor lightGrayColor]];
-    self.incomingBubbleImageData = [self.bubbleFactory outgoingMessagesBubbleImageWithColor:[UIColor lightGrayColor]];
 
     //CLEAR!!
     [self.message fetchIfNeededInBackgroundWithBlock:^(PFObject *object, NSError *error) {
@@ -480,8 +446,8 @@
     if (self.isLoadingPopup == NO)
     {
         self.isLoadingPopup = YES;
-        ChatroomUsersView *manage = [[ChatroomUsersView alloc] initWithRoom:self.room AndMessage:self.message];
-        [manage showActionSheet];
+        self.actionSheetHolder = [[ActionSheet alloc] initWithRoom:self.room AndMessage:self.message];
+        [self.actionSheetHolder showActionSheetWithDelegate:self];
         self.isLoadingPopup = NO;
     }
 }
@@ -489,11 +455,8 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:1];
-
     self.navigationController.navigationBarHidden = NO;
-
     if (self.message)
     {
         if (self.message[PF_MESSAGES_NICKNAME])
@@ -509,15 +472,13 @@
 
 - (void)viewWillDisappear:(BOOL)animated
 {
+    [super viewWillDisappear:animated];
+
     [self actionDismiss];
 
     self.isSelectingItem = NO;
 
     [ProgressHUD dismiss];
-
-    [super viewWillDisappear:animated];
-
-    PostNotification(NOTIFICATION_REFRESH_INBOX);
 
     [self.message fetchIfNeededInBackgroundWithBlock:^(PFObject *object, NSError *error) {
         if (!error)
@@ -543,19 +504,19 @@
     if (self.isLoading == NO)
     {
         self.showTypingIndicator = 1;
-        [self scrollToBottomAnimated:1];
         NSLog(@"LOADING CHAT");
         self.isLoading = YES;
-        self.collectionView.hidden = _didViewJustLoad;
+        self.collectionView.hidden = YES;
 
         PFQuery *query = [PFQuery queryWithClassName:PF_CHAT_CLASS_NAME];
         [query whereKey:PF_CHAT_ROOM equalTo:self.room];
-        JSQMessage *message_last = [self.messages lastObject];
 
+        JSQMessage *message_last = [self.messages lastObject];
         if (message_last)
         {
             [query whereKey:PF_CHAT_CREATEDAT greaterThan:message_last.date];
         }
+
         [query includeKey:PF_CHAT_USER];
         [query includeKey:PF_CHAT_SETID];
         [query orderByDescending:PF_PICTURES_UPDATEDACTION];
@@ -578,43 +539,67 @@
                          // IS A PICTURE, ADD TO PICTURES
                          if ([object valueForKey:PF_CHAT_ISUPLOADED])
                          {
-                             if (![self.messageObjectIds containsObject:object.objectId])
+                            if (![self.messageObjectIds containsObject:object.objectId])
                              {
-                                 JSQMessage *message2 = [JSQMessage messageWithSenderId:object.objectId displayName:@"" text:@""];
+
+                                 PFUser *user = [object valueForKey:PF_CHAT_USER];
+                                 NSString *senderId = user.objectId;
+                                 NSString *senderName = user[PF_USER_FULLNAME];
+
+                               bool isCurrentUser = [self.senderId isEqualToString:senderId] ? YES: NO;
+
+//                                 Using photo for video since it's just loading here, might having problems with outgoing vs incoming mask, have to check senderId to fix.
+                                 JSQPhotoMediaItem *item = [[JSQPhotoMediaItem alloc]initWithMaskAsOutgoing:isCurrentUser];
+                                 item.image = nil;
+                                 JSQMessage *message2 = [JSQMessage messageWithSenderId:senderId displayName:senderName media:item];
                                  [self.messages addObject:message2];
                                  [self.messageObjects addObject:object];
                                  [self.messageObjectIds addObject:object.objectId];
 
+//                                 Fetching the thumbnail from cache or internet, then updating with new JSQMessage.
                                  PFFile *file = [object valueForKey:PF_PICTURES_THUMBNAIL];
                                  [file getDataInBackgroundWithBlock:^(NSData *data, NSError *error)
                                   {
                                       if (!error)
                                       {
-                                          PFUser *user = [object valueForKey:PF_CHAT_USER];
-                                          NSString *senderId = user.objectId;
-                                          NSString *senderName = user[PF_USER_FULLNAME];
+//                                          PFUser *user = [object valueForKey:PF_CHAT_USER];
+//                                          NSString *senderId = user.objectId;
+//                                          NSString *senderName = user[PF_USER_FULLNAME];
 
                                           if ([object valueForKey:PF_CHAT_ISVIDEO])
                                           {
                                                NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@",NSTemporaryDirectory(), [NSString stringWithFormat:@"cache%@.mov", object.objectId]];
                                               NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
                                               NSFileManager *fileManager = [NSFileManager defaultManager];
+
                                               if ([fileManager fileExistsAtPath:outputPath])
                                               {
                                                   JSQVideoMediaItem *video = [[JSQVideoMediaItem alloc] initWithFileURL:outputURL isReadyToPlay:1];
-                                                  JSQMessage *message = [JSQMessage messageWithSenderId:senderId displayName:senderName media:video];
-                                                  [self.messages replaceObjectAtIndex:[_messages indexOfObject:message2] withObject:message];
+
+                                            video.appliesMediaViewMaskAsOutgoing = isCurrentUser;
+
+                                                  JSQMessage *message = [[JSQMessage alloc] initWithSenderId:senderId senderDisplayName:senderName date:[object valueForKey:PF_CHAT_CREATEDAT] media:video];
+
+                                                  [self.messages replaceObjectAtIndex:[self.messages indexOfObject:message2] withObject:message];
                                               }
                                               else
                                               {
                                                   PFFile *video = [object valueForKey:PF_PICTURES_PICTURE];
-                                                  [video getDataInBackgroundWithBlock:^(NSData * _Nullable data, NSError * _Nullable error) {
+                                                  
+                                                  [video getDataInBackgroundWithBlock:^(NSData * _Nullable data, NSError * _Nullable error)
+                                                  {
                                                       if (!error)
                                                       {
-                                                          [data writeToFile:outputPath atomically:1];
-                                                    JSQVideoMediaItem *video = [[JSQVideoMediaItem alloc] initWithFileURL:outputURL isReadyToPlay:1];
-                                                    JSQMessage *message = [JSQMessage messageWithSenderId:senderId displayName:senderName media:video];
-                                                        [self.messages replaceObjectAtIndex:[_messages indexOfObject:message2] withObject:message];
+                                                    [data writeToFile:outputPath atomically:1];
+
+                                                JSQVideoMediaItem *video = [[JSQVideoMediaItem alloc] initWithFileURL:outputURL isReadyToPlay:1];
+
+                                                video.appliesMediaViewMaskAsOutgoing = isCurrentUser;
+
+                                                    JSQMessage *message = [[JSQMessage alloc] initWithSenderId:senderId senderDisplayName:senderName date:[object valueForKey:PF_CHAT_CREATEDAT] media:video];
+
+                                                        [self.messages replaceObjectAtIndex:[self.messages indexOfObject:message2] withObject:message];
+
                                                         [self.collectionView reloadData];
                                                       }
                                                   }];
@@ -632,11 +617,10 @@
                                           {
                                               photoItemCopy.appliesMediaViewMaskAsOutgoing = NO;
                                           }
-        //                                         photoItemCopy.image = nil;
 
-                                          JSQMessage *message = [JSQMessage messageWithSenderId:senderId   displayName:senderName media:photoItemCopy];
+                                          JSQMessage *message = [[JSQMessage alloc] initWithSenderId:senderId senderDisplayName:senderName date:[object valueForKey:PF_CHAT_CREATEDAT] media:photoItemCopy];
 
-                                          [_messages replaceObjectAtIndex:[_messages indexOfObject:message2] withObject:message];
+                                          [self.messages replaceObjectAtIndex:[self.messages indexOfObject:message2] withObject:message];
 
                                           [self finishReceivingMessageAnimated:1];
                                     }
@@ -661,15 +645,13 @@
                      }
                  }
 
-
 //               START WEIRD REFRESHING RULES TO MAKE SURE THIS WORKS.
 
                  [self finishReceivingMessageAnimated:1];
 
                  if (_didOpenChatView == NO)
                  {
-                     [self.collectionView reloadData];
-                     [self scrollToBottomAnimated:0];
+                     [self finishReceivingMessageAnimated:0];
                      self.collectionView.hidden = NO;
                  }
 
@@ -688,12 +670,14 @@
                      {
                          [ProgressHUD showSuccess:@"Last Message" Interaction:1];
                      }
+
                      [self.collectionView reloadData];
                      [_refreshControl endRefreshing];
                      [_refreshControl2 endRefreshing];
+                     self.isLoading = NO;
                      return;
                  }
-                 else if (!count)
+                 else if (!newCount)
                  {
                      [self performSelector:@selector(openTextView) withObject:self afterDelay:.5f];
                  }
@@ -702,13 +686,6 @@
                      self.showLoadEarlierMessagesHeader = 1;
                  }
                  self.isLoading = NO;
-
-                 if (_isNewChatroomWithPhotos)
-                 {
-                     //New chatroom didn'tr have cache, so self.editing never called.
-                     self.collectionView.hidden = NO;
-                 }
-
                  self.showTypingIndicator = NO;
 
                  if (self.editing)
@@ -717,13 +694,9 @@
 
                      if (_didOpenChatView == NO)
                      {
-                         if (self.selectedSetForPictures && _isNewChatroomWithPhotos)
-                         {
-                             _isNewChatroomWithPhotos = NO;
-                         }
-
                          _didOpenChatView = YES;
-                         [self scrollToBottomAnimated:1];                     }
+                         [self scrollToBottomAnimated:1];
+                     }
 
                      [self.collectionView reloadData];
                      self.collectionView.hidden = NO;
@@ -776,21 +749,19 @@
 - (void)addMessage:(PFObject *)object
 {
     PFUser *user = object[PF_CHAT_USER];
-    NSDate *date = object[PF_PICTURES_UPDATEDACTION];
-    if (!date) date = [NSDate date];
+    NSDate *date = [object valueForKey:PF_CHAT_CREATEDAT];
+    if (date == nil) date = [NSDate date];
     JSQMessage *message = [[JSQMessage alloc] initWithSenderId:user.objectId senderDisplayName:user[PF_USER_FULLNAME] date:date text:object[PF_CHAT_TEXT]];
     [self.messages addObject:message];
 }
 
-- (void)sendMessage:(NSString *)text PictureSet:(PFObject *)set
+- (void)sendMessage:(NSString *)text
 {
-    PFObject *setCopy = set;
     PFObject *object = [PFObject objectWithClassName:PF_CHAT_CLASS_NAME];
     object[PF_CHAT_USER] = [PFUser currentUser];
     object[PF_CHAT_ROOM] = self.room;
     object[PF_CHAT_TEXT] = text;
     [object setValue:[NSDate date] forKey:PF_PICTURES_UPDATEDACTION];
-    if (setCopy) [object setObject:setCopy forKey:PF_CHAT_SETID];
     [self addMessage:object];
     [self finishSendingMessage];
 
@@ -800,7 +771,14 @@
          {
              [self.messageObjectIds addObject:object.objectId];
              [self finishSendingMessage];
+             if ([[NSUserDefaults standardUserDefaults] boolForKey:PF_KEY_SHOULDVIBRATE])
+             {
+                 [JSQSystemSoundPlayer jsq_playMessageSentAlert];
+             }
+             else
+             {
              [JSQSystemSoundPlayer jsq_playMessageSentSound];
+             }
              SendPushNotification(self.room, text);
              UpdateMessageCounter(self.room, text, nil);
          }
@@ -1039,6 +1017,12 @@
         {
             PFObject *pic = [self.messageObjects objectAtIndex:indexPath.item];
             PFFile *file = [pic valueForKey:PF_PICTURES_PICTURE];
+
+            if(file.isDataAvailable == false)
+            {
+                [ProgressHUD show:@"" Interaction:false];
+            }
+
             [file getDataInBackgroundWithBlock:^(NSData *data, NSError *error)
              {
                  if (!error)
@@ -1046,6 +1030,12 @@
                      UIImage *image = [UIImage imageWithData:data];
 
                      UIImageView *imageVIew = [[UIImageView alloc] initWithImage:image];
+
+                     imageVIew.layer.borderColor = [UIColor whiteColor].CGColor;
+                     imageVIew.layer.borderWidth = 1;
+                     imageVIew.layer.masksToBounds = true;
+                     imageVIew.layer.cornerRadius = 10;
+                     imageVIew.layer.shouldRasterize = YES;
 
                      int newHeight = image.size.height * (self.view.frame.size.width - 30) / image.size.width;
 
@@ -1056,6 +1046,11 @@
                      popup.layer.borderWidth = 5;
                      popup.layer.masksToBounds = true;
                      [popup show];
+                     [ProgressHUD dismiss];
+                 }
+                 else
+                 {
+                     [ProgressHUD showError:@"Network Error"];
                  }
              }];
         }
@@ -1118,7 +1113,20 @@
     
     KLCPopup *popup = [KLCPopup popupWithContentView:view showType:KLCPopupShowTypeBounceIn dismissType:KLCPopupDismissTypeBounceOut maskType:KLCPopupMaskTypeDimmed dismissOnBackgroundTouch:1 dismissOnContentTouch:1];
     [popup show];
+    popup.delegate = self;
     [moviePlayer play];
+}
+
+-(void)didDismiss
+{
+    NSLog(@"Dismissed");
+    [self performSelector:@selector(stopMovie) withObject:self afterDelay:.2];
+}
+
+-(void)stopMovie
+{
+    [moviePlayer stop];
+    moviePlayer = nil;
 }
 
 @end

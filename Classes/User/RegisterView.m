@@ -1,14 +1,8 @@
 
-#import <Parse/Parse.h>
-#import <ParseUI/ParseUI.h>
 #import "ProgressHUD.h"
-#import "AppConstant.h"
-#import "pushnotification.h"
 #import "RegisterView.h"
 #import "VerifyTextView.h"
 #import "utilities.h"
-#import "messages.h"
-#import "IQKeyboardManager.h"
 
 @interface RegisterView()
 
@@ -25,7 +19,7 @@
 
 @property (weak, nonatomic) IBOutlet UIButton *registerButton;
 
-@property (strong, nonatomic) NSDate *lastTextDate;
+@property (strong, nonatomic) NSDate *dateUntiLNextText;
 
 @property NSString *phoneNumber;
 @property NSString *password;
@@ -86,7 +80,7 @@
 
     _registerButton.backgroundColor = [UIColor benFamousGreen];
 
-    _lastTextDate = nil;
+    self.dateUntiLNextText = nil;
 
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithTitle:@">"
                                                              style:UIBarButtonItemStylePlain target:self action:@selector(didSlideRight:)];
@@ -217,8 +211,17 @@
     if ([phoneNumber  isEqual: @"+10000000000"])
     {
         phoneNumber = @"0000000000";
+        return;
     }
-    
+
+    if (self.dateUntiLNextText.timeIntervalSinceNow > 0)
+    {
+        NSString *string = [NSString stringWithFormat:@"Please wait %i seconds", (int)self.dateUntiLNextText.timeIntervalSinceNow];
+
+        [ProgressHUD showError:string];
+        return;
+    }
+
     NSDictionary *params = [NSDictionary dictionaryWithObject:phoneNumber forKey:@"phoneNumber"];
 
     [PFCloud callFunctionInBackground:@"sendVerificationCode" withParameters:params block:^(id object, NSError *error)
@@ -227,17 +230,15 @@
         {
             NSLog(@"%@ Twilio Return", object);
 
-            _lastTextDate = [NSDate date];
-
-            [PFQuery clearAllCachedResults];
+            self.dateUntiLNextText = [NSDate dateWithTimeIntervalSinceNow:30];
 
             [ProgressHUD showSuccess:@"Text Sent"];
 
-            [self sendFirstConversation];
+//            [self sendFirstConversation];
 
             VerifyTextView *tableview = [[VerifyTextView alloc] initWithStyle:UITableViewStyleGrouped];
             tableview.title = @"Enter Verification Code";
-            tableview.lastTextDate = _lastTextDate;
+            tableview.lastTextDate = self.dateUntiLNextText;
             tableview.user = userFound;
             tableview.password = password;
             tableview.phoneNumber = phoneNumber;

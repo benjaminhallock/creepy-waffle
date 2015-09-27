@@ -4,9 +4,8 @@
 //
 //  Created by benjaminhallock@gmail.com on 9/6/15.
 //  Copyright © 2015 KZ. All rights reserved.
-//
 
-#import <UIKit/UIKit.h>
+#import "AppConstant.h"
 
 @protocol PictureViewerDelegate <NSObject>
 -(void)sendBackImage:(UIImage *)image orVideo:(NSURL *)videoURL;

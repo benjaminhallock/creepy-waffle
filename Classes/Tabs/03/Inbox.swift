@@ -35,7 +35,7 @@ class Inbox: UIViewController
 
     @IBAction func didSelectCompose()
     {
-    var chat = CreateChatroomView()
+    let chat = CreateChatroomView()
     chat.isTherePicturesToSend = false;
     self.hidesBottomBarWhenPushed = true;
     self.navigationController?.pushViewController(chat, animated: true)

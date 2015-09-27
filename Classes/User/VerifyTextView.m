@@ -1,13 +1,8 @@
 
-#import <Parse/Parse.h>
-#import <ParseUI/ParseUI.h>
 #import "ProgressHUD.h"
-#import "AppConstant.h"
 #import "pushnotification.h"
-#import "AppDelegate.h"
 #import "VerifyTextView.h"
 #import "utilities.h"
-#import "UIColor.h"
 
 @interface VerifyTextView ()
 
@@ -26,7 +21,7 @@
 {
     [fieldFirstName becomeFirstResponder];
 
-    if (_isLoggingIn)
+    if (self.isLoggingIn)
     {
         [self.verifyButton addTarget:self action:@selector(actionSignin) forControlEvents:UIControlEventTouchUpInside];
     }

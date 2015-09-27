@@ -1,16 +1,5 @@
-
-#import <Parse/Parse.h>
-
-#import <ParseUI/ParseUI.h>
-
-#import "AppConstant.h"
-
 #import "utilities.h"
-
-#import "UIColor.h"
-
 #import "MessagesCell.h"
-
 
 @interface MessagesCell ()
 {
@@ -28,7 +17,7 @@
 -(void) format
 {
         self.labelNumberOfPeople.text = @"";
-        imageUser.layer.cornerRadius = 10;
+        imageUser.layer.cornerRadius = imageUser.frame.size.width/2;
         imageUser.layer.masksToBounds = YES;
         labelInitials.layer.borderWidth = 1;
 
@@ -43,7 +32,7 @@
     self.labelNumberOfPeople.textColor = lightGray;
 
         labelInitials.layer.borderColor = [UIColor whiteColor].CGColor;
-        labelInitials.layer.cornerRadius = labelInitials.frame.size.height/2.7;
+        labelInitials.layer.cornerRadius = labelInitials.frame.size.height/2;
         imageUser.layer.borderWidth = 2;
         imageUser.layer.borderColor = [UIColor benFamousGreen].CGColor;
         self.layer.rasterizationScale = [UIScreen mainScreen].scale;

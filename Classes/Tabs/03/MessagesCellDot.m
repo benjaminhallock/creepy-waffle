@@ -1,31 +1,15 @@
 
-#import <Parse/Parse.h>
-
-#import <ParseUI/ParseUI.h>
-
 #import "AppConstant.h"
-
 #import "utilities.h"
-
-#import "UIColor.h"
-
 #import "MessagesCellDot.h"
 
 @interface MessagesCellDot ()
-
-{
-    PFObject *message;
-}
-
+@property PFObject *message;
 @end
 
 @implementation MessagesCellDot
 
-@synthesize imageUser;
-
-@synthesize labelDescription, labelLastMessage, labelInitials;
-
-@synthesize labelElapsed, labelCounter;
+@synthesize imageUser, message, labelDescription, labelLastMessage, labelInitials, labelElapsed, labelCounter;
 
 -(void) format
 {

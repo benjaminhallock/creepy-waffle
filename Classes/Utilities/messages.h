@@ -1,6 +1,6 @@
 
 
-#import <Parse/Parse.h>
+#import "AppConstant.h"
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 void	CreateMessageItem			(PFObject *room, NSArray *arrayOfUsers);

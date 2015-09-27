@@ -1,9 +1,4 @@
 
-
-#import <Parse/Parse.h>
-
-#import "AppConstant.h"
-
 #import "pushnotification.h"
 
 void ParsePushUserAssign(void)
@@ -41,7 +36,6 @@ void SendPushNotification(PFObject *room, NSString *text)
 	[query setLimit:1000];
 	PFQuery *queryInstallation = [PFInstallation query];
 	[queryInstallation whereKey:PF_INSTALLATION_USER matchesKey:PF_MESSAGES_USER_DONOTDISTURB inQuery:query];
-
 	PFPush *push = [[PFPush alloc] init];
 	[push setQuery:queryInstallation];
     NSString *name = [[PFUser currentUser] valueForKey:PF_USER_FULLNAME];

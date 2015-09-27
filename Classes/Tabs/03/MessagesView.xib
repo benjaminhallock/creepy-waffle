@@ -10,8 +10,6 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MessagesView">
             <connections>
-                <outlet property="albumButton" destination="0Xb-jU-WxI" id="5Yt-oo-TCB"/>
-                <outlet property="composeButton" destination="4MD-lY-etj" id="zXQ-jd-clC"/>
                 <outlet property="labelNoMessages" destination="Pou-xm-vxU" id="bSI-GW-9Ej"/>
                 <outlet property="searchCloseButton" destination="O2e-Df-rsD" id="g5z-7c-cnE"/>
                 <outlet property="searchTextField" destination="qJb-hf-yoD" id="B1v-Ov-fgF"/>
@@ -158,51 +156,8 @@
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <point key="canvasLocation" x="-173" y="237"/>
         </view>
-        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4MD-lY-etj" userLabel="✚ NEW CONVERSATION">
-            <rect key="frame" x="0.0" y="0.0" width="500" height="50"/>
-            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-            <constraints>
-                <constraint firstAttribute="width" constant="500" id="ebx-Tw-kEA"/>
-                <constraint firstAttribute="height" constant="50" id="pwc-Ro-XRl"/>
-            </constraints>
-            <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="15"/>
-            <state key="normal" title="NEW CONVERSATION" image="Compose">
-                <color key="titleColor" red="1" green="0.16078431372549018" blue="0.28627450980392155" alpha="1" colorSpace="calibratedRGB"/>
-                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-            </state>
-            <state key="highlighted">
-                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                <color key="titleShadowColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-            </state>
-            <connections>
-                <action selector="didSelectCompose:" destination="-1" eventType="touchUpInside" id="Gtx-uW-zX8"/>
-            </connections>
-            <point key="canvasLocation" x="-263" y="133"/>
-        </button>
-        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Xb-jU-WxI" userLabel="✚ NEW ALBUM">
-            <rect key="frame" x="0.0" y="0.0" width="500" height="50"/>
-            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-            <constraints>
-                <constraint firstAttribute="width" constant="500" id="Cdb-6t-poZ"/>
-                <constraint firstAttribute="height" constant="50" id="yXj-Pk-NiO"/>
-            </constraints>
-            <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="15"/>
-            <state key="normal" title=" ✚ NEW ALBUM">
-                <color key="titleColor" red="0.93333333333333335" green="0.65490196078431373" blue="0.41176470588235292" alpha="1" colorSpace="calibratedRGB"/>
-                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-            </state>
-            <state key="highlighted">
-                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                <color key="titleShadowColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-            </state>
-            <connections>
-                <action selector="didSelectCompose:" destination="-1" eventType="touchUpInside" id="qYc-dg-xlg"/>
-            </connections>
-            <point key="canvasLocation" x="-263" y="38"/>
-        </button>
     </objects>
     <resources>
-        <image name="Compose" width="30" height="30"/>
         <image name="searchIcon" width="107" height="107"/>
     </resources>
 </document>

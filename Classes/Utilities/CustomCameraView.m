@@ -1,34 +1,14 @@
 
 #import "CustomCameraView.h"
-
 #import <AssetsLibrary/AssetsLibrary.h>
-#import <ImageIO/ImageIO.h>
-
-#import <AVFoundation/AVFoundation.h>
-#import <QuartzCore/QuartzCore.h>
-
 #import "AppConstant.h"
-#import "MessagesView.h"
 #import "ProgressHUD.h"
-#import <Parse/Parse.h>
-#import "KLCPopup.h"
-#import "UIColor.h"
 #import <Photos/Photos.h>
-#import "MessagesView.h"
 #import "utilities.h"
-#import "AppDelegate.h"
-#import "SelectChatroomView.h"
-
 #import "PictureViewController.h"
-
-#import "CameraCollectionViewCell.h"
-#import "LXReorderableCollectionViewFlowLayout.h"
-
 #import <MediaPlayer/MediaPlayer.h>
 
-@interface CustomCameraView () <UIImagePickerControllerDelegate, UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate, UIScrollViewDelegate, LXReorderableCollectionViewDataSource, UICollectionViewDelegate, LXReorderableCollectionViewDelegateFlowLayout, UIAlertViewDelegate, PictureViewerDelegate>
-
-@property (strong, nonatomic) IBOutlet UICollectionView *collectionView;
+@interface CustomCameraView () <UIImagePickerControllerDelegate, UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate, UIScrollViewDelegate, UIAlertViewDelegate, PictureViewerDelegate>
 
 @property (nonatomic,strong) ALAssetsLibrary *library;
 @property AVCaptureSession *captureSession;
@@ -41,14 +21,10 @@
 @property UIImagePickerController *picker;
 
 @property (weak, nonatomic) IBOutlet UIButton *flashButton;
-@property (weak, nonatomic) IBOutlet UIButton *NextButton;
 @property (weak, nonatomic) IBOutlet UIButton *switchCameraButton;
 @property (weak, nonatomic) IBOutlet UIButton *cameraRollButton;
-@property (weak, nonatomic) IBOutlet UIButton *takePictureButton;
-
+@property (strong, nonatomic) IBOutlet UIButton *takePictureButton;
 @property (weak , nonatomic) IBOutlet UIButton *cancelButton;
-@property (weak , nonatomic) IBOutlet UIButton *rightButton;
-@property (weak , nonatomic) IBOutlet UIButton *counterButton;
 
 @property (weak, nonatomic) NSTimer *timer;
 @property BOOL didPickImageFromAlbum;
@@ -56,7 +32,7 @@
 @property UIRefreshControl *refreshControl;
 @property BOOL didViewJustLoad;
 
-@property KLCPopup *pop;
+@property CAShapeLayer *circle;
 @property (strong, nonatomic) UIPageControl *pageControl;
 @property UIScrollView *scrollViewPop;
 @property UIActivityIndicatorView *spinner;
@@ -69,10 +45,6 @@
 @property NSTimer *progressTimer;
 @property NSTimer *timerForRecButton;
 @property NSDate *startDate;
-
-@property UIView *videoView;
-@property UIView *videoView2;
-
 @property BOOL isCameraRollEnabled;
 @end
 
@@ -92,9 +64,6 @@
 
 -(void) clearCameraStuff
 {
-    [self.arrayOfTakenPhotos removeAllObjects];
-    [self.collectionView reloadData];
-    [self setButtonsWithImage:0 withVideo:0 AndURL:0];
     [self performSelector:@selector(popRoot) withObject:self afterDelay:1.0f];
 }
 
@@ -103,14 +72,14 @@
     [self.navigationController popToRootViewControllerAnimated:0];
 }
 
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 
-    [self runCamera];
+    self.didViewJustLoad = true;
 
-    [self.collectionView registerNib:[UINib nibWithNibName:@"CameraCollectionViewCell" bundle:0] forCellWithReuseIdentifier:@"Cell"];
+    NSLog(@"%f", self.view.frame.size.height);
+//    [self.collectionView registerNib:[UINib nibWithNibName:@"CameraCollectionViewCell" bundle:0] forCellWithReuseIdentifier:@"Cell"];
 
     self.captureVideoNowCounter = 0;
 
@@ -118,49 +87,13 @@
     self.switchCameraButton.userInteractionEnabled = NO;
     self.flashButton.userInteractionEnabled = NO;
     self.cameraRollButton.userInteractionEnabled = NO;
-    self.NextButton.hidden = YES;
-    self.counterButton.hidden = YES;
-
-    //    [[UIApplication sharedApplication] setStatusBarHidden:1 withAnimation:UIStatusBarAnimationSlide];
-
-    self.collectionView.backgroundColor = [UIColor clearColor];
-
-    if (_isPoppingUp)
-    {
-        self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-        [self.spinner startAnimating];
-        self.spinner.frame = CGRectMake(self.view.frame.size.width/2 + 10, self.view.frame.size.height + 28, 40, 40);
-        [self.view addSubview:self.spinner];
-    }
-
-    if (!self.scrollView)
-    {
-        self.scrollView = [(AppDelegate *)[[UIApplication sharedApplication] delegate] scrollView];
-    }
 
     //Taking screenshots of videos
-
     _didViewJustLoad = true;
-
-    self.counterButton.backgroundColor = [UIColor benFamousOrange];
-
     self.navigationController.navigationBarHidden = 1;
-
-    self.cancelButton.hidden = !_isPoppingUp;
-    self.rightButton.hidden = _isPoppingUp;
-
     self.cancelButton.backgroundColor = [UIColor clearColor];
     self.view.backgroundColor = [UIColor blackColor];
-
-    //NOT ADDED.
-    //    _refreshControl = [[UIRefreshControl alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
-    //    [_refreshControl beginRefreshing];
-
-    self.arrayOfTakenPhotos = [NSMutableArray new];
-
-
     self.cameraRollButton.backgroundColor = [UIColor clearColor];
-
     self.switchCameraButton.backgroundColor = [UIColor clearColor];
     self.flashButton.backgroundColor = [UIColor clearColor];
 
@@ -177,10 +110,6 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(clearCameraStuff) name:NOTIFICATION_CLEAR_CAMERA_STUFF object:0];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enableScrollview:) name:NOTIFICATION_ENABLESCROLLVIEW object:0];
-
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(collectionViewDidDelete:) name:NOTIFICATION_DELETE_CAMERA_PIC object:0];
-
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(collectionViewDidTap:) name:NOTIFICATION_TAP_CAMERA_PIC object:0];
 }
 
 - (void)removeInputs
@@ -196,109 +125,69 @@
     }
 }
 
-
-
 -(void)enableScrollview:(NSNotification *)notification
 {
-    self.scrollView.scrollEnabled = YES;
+//    self.scrollView.scrollEnabled = YES;
 }
-
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:1];
-#warning GETS CALLED WITH MESSAGESVIEW SIMULTANEOUSLY.
 
-    self.navigationController.navigationBarHidden = 1;
-
-    //Only way to check which camera is up and what screen is present.
-    if (self.scrollView.contentOffset.x == 0)
+    if (_isPoppingUp && _didViewJustLoad)
     {
-        if (!_didViewJustLoad && !_isPoppingUp)
-        {
-            [self.scrollView setContentOffset:CGPointMake(1, 0)];
-            [self.scrollView setContentOffset:CGPointMake(0, 0)];
-        }
+        NSLog(@"%f", self.view.frame.size.height);
+        self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        [self.spinner startAnimating];
+        self.spinner.frame = CGRectMake(self.view.frame.size.width/2 - 20, self.view.frame.size.height - 60, 40, 40);
+        [self.view addSubview:self.spinner];
+        self.didViewJustLoad = false;
     }
+
+    [self runCamera];
+    self.navigationController.navigationBarHidden = 1;
 }
 
 - (void)setPopUp
 {
     [[UIApplication sharedApplication] setStatusBarHidden:1 withAnimation:UIStatusBarAnimationSlide];
-
     _isPoppingUp = YES;
-
-    self.cancelButton.hidden = !_isPoppingUp;
-    self.rightButton.hidden = _isPoppingUp;
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
 
-    [self setLatestImageOffAlbum];
+//    [self setLatestImageOffAlbum];
+
+//    self.takePictureButton = [[UIButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2 - 8, self.view.frame.size.height, 82, 82)];
+//    [self.takePictureButton setImage:[UIImage imageNamed:@"snap1"] forState:UIControlStateNormal];
+    [self.takePictureButton addTarget:self action:@selector(onTakePhotoPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self.takePictureButton addTarget:self action:@selector(buttonRelease:) forControlEvents:UIControlEventTouchDown];
+//    [self.view addSubview:self.takePictureButton];
 
     [[UIApplication sharedApplication] setStatusBarHidden:1 withAnimation:UIStatusBarAnimationFade];
-
     self.cancelButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
-    self.rightButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
     self.switchCameraButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
 
     if (!_didViewJustLoad)
     {
         [[UIApplication sharedApplication] setStatusBarHidden:1 withAnimation:UIStatusBarAnimationSlide];
-
-        if (self.navigationController.visibleViewController == self && self.scrollView.contentOffset.x  < 2)
-        {
-            [[UIApplication sharedApplication] setStatusBarHidden:1 withAnimation:UIStatusBarAnimationSlide];
-            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:1];
-            self.scrollView.scrollEnabled = YES;
-        }
-        else
-        {
-            //            [[UIApplication sharedApplication] setStatusBarHidden:0 withAnimation:UIStatusBarAnimationSlide];
-        }
     } else {
         _didViewJustLoad = NO;
-        //            self.scrollView.scrollEnabled = NO;
     }
-
-    self.takePictureButton.hidden = self.arrayOfTakenPhotos.count < 5 ? NO : YES;
-}
-
-- (void)viewWillDisappear:(BOOL)animated
-{
-    [super viewWillDisappear:animated];
-
-    if (_isPoppingUp)
-    {
-        [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
-        self.scrollView.scrollEnabled = NO;
-    }
-
-    self.scrollView.scrollEnabled = NO;
 }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
     [super viewDidDisappear:animated];
-
-    if (_isPoppingUp)
-    {
-        self.scrollView.scrollEnabled = NO;
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-    }
 }
 
 //Drag photos on top of other photos, then switch positions.
-
 -(void) runCamera
 {
     if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera])
     {
-#warning FIX THIS EVENTUALLLYYYYY
-        //      [self stopCaptureSession];
-
         if (!self.captureSession) [self setupCaptureSessionAndStartRunning];
         else [self startRunningCaptureSession];
 
@@ -315,7 +204,6 @@
     }
 }
 
-
 #pragma mark - IBACTIONS
 
 - (IBAction)onAlbumPressed:(UIButton *)button
@@ -326,11 +214,7 @@
         button.transform = CGAffineTransformMakeScale(1.8,1.8);
         button.transform = CGAffineTransformMakeScale(1,1);
     }];
-    if (self.arrayOfTakenPhotos.count == 5) {
-        [ProgressHUD showError:@"No More Pictures"];
-    } else {
         [self setupImagePicker];
-    }
 }
 
 - (void)stopCaptureSession
@@ -352,12 +236,15 @@
 
 - (IBAction)onTakePhotoPressed:(UIButton *)button
 {
+    if (button)
+    {
     [UIView animateWithDuration:.3f animations:^{
         button.transform = CGAffineTransformMakeScale(1.8,1.8);
         button.transform = CGAffineTransformMakeScale(1,1);
         button.transform = CGAffineTransformMakeScale(1.8,1.8);
         button.transform = CGAffineTransformMakeScale(1,1);
     }];
+    }
 
     if (self.captureSession)
     {
@@ -369,58 +256,36 @@
 {
     if (self.flashMode == AVCaptureFlashModeOn) {
         self.flashMode = AVCaptureFlashModeOff;
-        [self.flashButton setImage:[UIImage imageNamed:@"flash-off"] forState:UIControlStateNormal];
+        [self.flashButton setImage:[UIImage imageNamed:@"Flash Off"] forState:UIControlStateNormal];
     } else if (self.flashMode == AVCaptureFlashModeOff) {
         self.flashMode = AVCaptureFlashModeOn;
-        [self.flashButton setImage:[UIImage imageNamed:@"flash"] forState:UIControlStateNormal];
+        [self.flashButton setImage:[UIImage imageNamed:@"Flash On"] forState:UIControlStateNormal];
     }
 }
 
 - (IBAction)onCloseCameraPressed:(UIButton *)sender
 {
-    //    [self stopCaptureSession];
-
-    if (self.picker) {
-        [self.picker dismissViewControllerAnimated:1 completion:0];
-    }
-
-
+    if (self.picker)  [self.picker dismissViewControllerAnimated:1 completion:0];
     self.isPoppingUp = NO;
-
     self.cancelButton.hidden = YES;
-    self.rightButton.hidden = NO;
-
-    PostNotification(NOTIFICATION_CAMERA_POPUP);
-
     [[UIApplication sharedApplication] setStatusBarHidden:0 withAnimation:UIStatusBarAnimationSlide];
-
     [self dismissViewControllerAnimated:0 completion:0];
-
     self.didPickImageFromAlbum = NO;
-}
-
-
-
--(IBAction)didSlideRight:(id)sender
-{
-    [self.scrollView setContentOffset:CGPointMake(self.scrollView.frame.size.width, 0) animated:YES];
 }
 
 - (void)updateUI:(NSTimer *)timer
 {
     static int count =0; count++;
 
-    NSTimeInterval elapsedTime = [[NSDate date] timeIntervalSinceDate:self.startDate];
-
-    int x = (int)self.arrayOfTakenPhotos.count;
+    NSTimeInterval elapsedTime = self.startDate.timeIntervalSinceNow;
 
     if (elapsedTime <= 10)
     {
-        self.videoView.frame = CGRectMake(0, self.view.frame.size.height, self.view.frame.size.width , elapsedTime * -self.view.frame.size.height/10);
+//        self.videoView.frame = CGRectMake(0, self.view.frame.size.height, self.view.frame.size.width , elapsedTime * -self.view.frame.size.height/10);
     }
     else
     {
-        [self.takePictureButton setImage:[UIImage imageNamed:@"snap"] forState:UIControlStateNormal];
+        [self.takePictureButton setImage:[UIImage imageNamed:@"snap1"] forState:UIControlStateNormal];
         [self.progressTimer invalidate];
         [self.timerForRecButton invalidate];
         [self captureStopVideoNow];
@@ -435,13 +300,13 @@
     {
         if([[[UIDevice currentDevice] systemVersion] floatValue]<8.0)
         {
-            UIAlertView* curr1=[[UIAlertView alloc] initWithTitle:@"Photos Not Enabled" message:@"Settings -> ben -> Photos" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil, nil];
+            UIAlertView* curr1=[[UIAlertView alloc] initWithTitle:@"Photos Not Enabled" message:@"Settings -> Snap Ben -> Photos" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil, nil];
             curr1.tag = 1;
             [curr1 show];
         }
         else
         {
-            UIAlertView* curr2=[[UIAlertView alloc] initWithTitle:@"Photos Not Enabled" message:@"Settings -> ben -> Photos" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Settings", nil];
+            UIAlertView* curr2=[[UIAlertView alloc] initWithTitle:@"Photos Not Enabled" message:@"Settings -> Snap Ben -> Photos" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Settings", nil];
             curr2.tag = 1;
             [curr2 show];
         }
@@ -519,15 +384,11 @@
                                }
                                [UIView animateWithDuration:.3f animations:^
                                 {
-                                    self.collectionView.userInteractionEnabled = NO;
-                                    self.collectionView.alpha = .5f;
-                                    self.NextButton.userInteractionEnabled = NO;
-                                    self.NextButton.alpha = .5;
+//                                    self.collectionView.userInteractionEnabled = NO;
+//                                    self.collectionView.alpha = .5f;
                                     self.takePictureButton.userInteractionEnabled = 0;
                                     self.takePictureButton.alpha = .5f;
                                 }];
-                               [self.videoView removeFromSuperview];
-                               [self.videoView2 removeFromSuperview];
                            });
 
             //Convert this giant file to something more managable.
@@ -539,10 +400,8 @@
 
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [UIView animateWithDuration:.3f animations:^{
-                            self.collectionView.userInteractionEnabled = YES;
-                            self.collectionView.alpha = .5f;
-                            self.NextButton.userInteractionEnabled = 1;
-                            self.NextButton.alpha = .9;
+//                            self.collectionView.userInteractionEnabled = YES;
+//                            self.collectionView.alpha = .5f;
                             self.takePictureButton.userInteractionEnabled = 1;
                             self.takePictureButton.alpha = 1;
                         }];
@@ -580,11 +439,8 @@
 
     [picker dismissViewControllerAnimated:1 completion:^
      {
-         [self setButtonsWithImage:image withVideo:false AndURL:0];
-
          [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
          [[UIApplication sharedApplication] setStatusBarHidden:1 withAnimation:UIStatusBarAnimationSlide];
-         self.scrollView.scrollEnabled = YES;
      }];
 }
 
@@ -593,7 +449,6 @@
     [picker dismissViewControllerAnimated:1 completion:^{
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
         [[UIApplication sharedApplication] setStatusBarHidden:1 withAnimation:UIStatusBarAnimationSlide];
-        self.scrollView.scrollEnabled = YES;
     }];
 }
 
@@ -717,13 +572,13 @@
 
         if([[[UIDevice currentDevice] systemVersion] floatValue]<8.0)
         {
-            UIAlertView* curr1=[[UIAlertView alloc] initWithTitle:@"Camera not enabled" message:@"Settings -> ben -> Camera" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil, nil];
+            UIAlertView* curr1=[[UIAlertView alloc] initWithTitle:@"Camera not enabled" message:@"Settings -> Snap Ben -> Camera" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil, nil];
             curr1.tag = 121;
             [curr1 show];
         }
         else
         {
-            UIAlertView* curr2=[[UIAlertView alloc] initWithTitle:@"Camera not enabled" message:@"Settings -> ben -> Camera" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Settings", nil];
+            UIAlertView* curr2=[[UIAlertView alloc] initWithTitle:@"Camera not enabled" message:@"Settings -> Snap Ben -> Camera" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Settings", nil];
             curr2.tag=121;
             [curr2 show];
         }
@@ -835,11 +690,12 @@
     if (point.state == UIGestureRecognizerStateEnded)
     {
         CGPoint save = [point locationInView:self.view];
-        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
         view.layer.borderWidth = 3;
-        view.layer.cornerRadius = 10;
-        view.layer.borderColor = [UIColor whiteColor].CGColor;
+        view.layer.cornerRadius = 30;
+        view.layer.borderColor = [UIColor colorWithWhite:1.0f alpha:.8f].CGColor;
         view.center = save;
+        view.backgroundColor = [UIColor colorWithWhite:1.0f alpha:.5f];
         view.alpha = 0;
         [UIView animateWithDuration:0.3f animations:^{
             [self.view addSubview:view];
@@ -855,8 +711,10 @@
         save2 = NSStringFromCGPoint(save);
         NSLog(@"%@ NEW", save2);
 
-        if ([self.device lockForConfiguration:0]) {
-            if (point) {
+        if ([self.device lockForConfiguration:0])
+        {
+            if (point)
+            {
                 NSLog(@"if point");
                 [self.device setFocusPointOfInterest:save];
                 [self.device setExposurePointOfInterest:save];
@@ -872,8 +730,12 @@
 {
     if (point.state == UIGestureRecognizerStateBegan)
     {
-        NSLog(@"HOLD");
         CGPoint save = [point locationInView:self.view];
+        NSString *save2 = {NSStringFromCGPoint(save)};
+        NSLog(@"%@ OLD", save2);
+       CGPoint saveNew = CGPointMake(save.y/self.view.frame.size.height, (1 -save.x/self.view.frame.size.width));
+        save2 = NSStringFromCGPoint(saveNew);
+        NSLog(@"%@ NEW", save2);
 
         if (CGRectContainsPoint(self.takePictureButton.frame, save))
         {
@@ -909,29 +771,10 @@
                 return;
             }
 
-            self.progressTimer = [NSTimer scheduledTimerWithTimeInterval:.03 target:self selector:@selector(updateUI:) userInfo:nil repeats:YES];
-
             [_timer invalidate];
-
-            self.collectionView.userInteractionEnabled = NO;
-            self.NextButton.userInteractionEnabled = NO;
-
-            //Juice
-            self.videoView = [UIView new];
-            self.videoView.layer.masksToBounds = 1;
-            self.videoView.backgroundColor = [UIColor benFamousOrange];
-            self.videoView.alpha = .9f;
-            self.videoView.layer.cornerRadius = 0;
-            self.videoView.layer.rasterizationScale = [UIScreen mainScreen].scale;
-            self.videoView.layer.shouldRasterize = 1;
-            self.videoView.layer.borderWidth = 0;
-            self.videoView.layer.borderColor = [UIColor whiteColor].CGColor;
-            [self.view addSubview:self.videoView];
-
+            [self startCircle];
             self.startDate = [NSDate date];
-
             [self.takePictureButton setImage:[UIImage imageNamed:@"snap2"] forState:UIControlStateNormal];
-
             self.timerForRecButton = [NSTimer scheduledTimerWithTimeInterval:1.0f target:self selector:@selector(bounceRecButton) userInfo:0 repeats:1];
 
             [UIView animateWithDuration:.3f animations:^
@@ -941,42 +784,21 @@
              }];
 
             [self captureVideoNow];
-            return;
         }
-
-        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
-        view.layer.borderWidth = 5;
-        view.layer.cornerRadius = 10;
-        view.layer.borderColor = [UIColor whiteColor].CGColor;
-        view.center = save;
-        view.alpha = 0;
-        [UIView animateWithDuration:0.9f animations:^{
-            [self.view addSubview:view];
-            view.alpha = 0;
-            view.alpha = 1;
-            view.backgroundColor = [UIColor lightTextColor];
-        } completion:^(BOOL finished) {
-            [view removeFromSuperview];
-        }];
-
-        NSString *save2 = {NSStringFromCGPoint(save)};
-        NSLog(@"%@ HOLD", save2);
-
-        save = CGPointMake(save.y/self.view.frame.size.height, (1 -save.x/self.view.frame.size.width));
-        save2 = NSStringFromCGPoint(save);
-        NSLog(@"%@ NEW", save2);
-
-        if ([self.device lockForConfiguration:0])
+        else
         {
-            if (point)
+            if ([self.device lockForConfiguration:0] && self.isCapturingVideo == false)
             {
-                NSLog(@"if point");
-                [self.device setFocusPointOfInterest:save];
-                [self.device setExposurePointOfInterest:save];
+                if (point)
+                {
+                    NSLog(@"if point");
+                    [self.device setFocusPointOfInterest:saveNew];
+                    [self.device setExposurePointOfInterest:saveNew];
+                }
+                [self.device setExposureMode:AVCaptureExposureModeLocked];
+                [self.device setFocusMode:AVCaptureFocusModeLocked];
+                [self.device unlockForConfiguration];
             }
-            [self.device setExposureMode:AVCaptureExposureModeLocked];
-            [self.device setFocusMode:AVCaptureFocusModeLocked];
-            [self.device unlockForConfiguration];
         }
     }
     else if (point.state ==UIGestureRecognizerStateEnded)
@@ -995,7 +817,7 @@
                      self.takePictureButton.transform = CGAffineTransformMakeScale(1.8,1.8);
                      self.takePictureButton.transform = CGAffineTransformMakeScale(1,1);
                  }];
-                [self.takePictureButton setImage:[UIImage imageNamed:@"snap"] forState:UIControlStateNormal];
+                [self.takePictureButton setImage:[UIImage imageNamed:@"snap1"] forState:UIControlStateNormal];
             });
 
             [self.timerForRecButton invalidate];
@@ -1005,6 +827,86 @@
         }
     }
 }
+
+-(void)startCircle
+{
+    // Set up the shape of the circle
+    int radius = 80;
+    self.circle = [CAShapeLayer layer];
+    // Make a circular shape
+    self.circle.path = [UIBezierPath bezierPathWithRoundedRect:self.view.frame cornerRadius:0].CGPath;
+
+    // Center the shape in self.view
+    self.circle.position = CGPointMake(0,
+                                       0);
+
+    // Configure the apperence of the circle
+    self.circle.fillColor = [UIColor clearColor].CGColor;
+    self.circle.strokeColor = [UIColor redColor].CGColor;
+    self.circle.lineWidth = 5;
+
+    // Add to parent layer
+    [self.view.layer addSublayer:self.circle];
+
+    // Configure animation
+    CABasicAnimation *drawAnimation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
+    drawAnimation.duration            = 10.0; // "animate over 10 seconds or so.."
+    drawAnimation.repeatCount         = 1.0;  // Animate only once..
+
+    // Animate from no part of the stroke being drawn to the entire stroke being drawn
+    drawAnimation.fromValue = [NSNumber numberWithFloat:0.0f];
+    drawAnimation.toValue   = [NSNumber numberWithFloat:1.0f];
+
+    // Experiment with timing to get the appearence to look the way you want
+    drawAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+
+    // Add the animation to the circle
+    [self.circle addAnimation:drawAnimation forKey:@"drawCircleAnimation"];
+}
+
+-(void)startCircle2
+{
+    // Set up the shape of the circle
+    int radius = 80;
+    self.circle = [CAShapeLayer layer];
+    // Make a circular shape
+    self.circle.path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, radius, radius) cornerRadius:radius].CGPath;
+
+    // Center the shape in self.view
+    self.circle.position = CGPointMake(CGRectGetMidX(self.view.frame)-radius/2 + 2,
+                                  self.view.frame.size.height - radius * 1.2);
+
+    // Configure the apperence of the circle
+    self.circle.fillColor = [UIColor clearColor].CGColor;
+    self.circle.strokeColor = [UIColor redColor].CGColor;
+    self.circle.lineWidth = 5;
+
+    // Add to parent layer
+    [self.view.layer addSublayer:self.circle];
+
+    // Configure animation
+    CABasicAnimation *drawAnimation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
+    drawAnimation.duration            = 10.0; // "animate over 10 seconds or so.."
+    drawAnimation.repeatCount         = 1.0;  // Animate only once..
+
+    // Animate from no part of the stroke being drawn to the entire stroke being drawn
+    drawAnimation.fromValue = [NSNumber numberWithFloat:0.0f];
+    drawAnimation.toValue   = [NSNumber numberWithFloat:1.0f];
+
+    // Experiment with timing to get the appearence to look the way you want
+    drawAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    
+    // Add the animation to the circle
+    [self.circle addAnimation:drawAnimation forKey:@"drawCircleAnimation"];
+}
+
+-(void)stopCircle
+{
+    [self.circle removeAllAnimations];
+    [self.circle removeFromSuperlayer];
+}
+
+
 
 -(IBAction)switchCameraTapped:(id)sender
 {
@@ -1069,7 +971,7 @@
                 break;
             }
         }
-        if (videoConnection) { break; }
+        if (videoConnection) break;
     }
 
     // Set flash mode
@@ -1080,7 +982,6 @@
     }
 
     // Flash the screen white and fade it out to give UI feedback that a still image was taken
-
     UIView *flashView = [[UIView alloc] initWithFrame:self.videoPreviewView.window.bounds];
     flashView.backgroundColor = [UIColor whiteColor];
     [self.videoPreviewView.window addSubview:flashView];
@@ -1096,25 +997,26 @@
                      }
      ];
 
-    if (self.device.position == AVCaptureDevicePositionFront)
-    {
-        NSLog(@"SELFIE");
-        //Put filter on image afterwards;
-    }
-
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection
                                                        completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error)
      {
          if (!error)
          {
              NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
-             UIImage *image = [[UIImage alloc] initWithData:imageData];
+             UIImage *image = [UIImage imageWithData:imageData];
+
+
+             AVCaptureInput* currentCameraInput = [self.captureSession.inputs objectAtIndex:0];
+             //           Fix Orientation
+             if (((AVCaptureDeviceInput*)currentCameraInput).device.position == AVCaptureDevicePositionFront)
+             {
+                 NSLog(@"SELFIE");
+                 image = [UIImage imageWithCGImage:image.CGImage scale:image.scale orientation:UIImageOrientationLeftMirrored];
+                 //Put filter on image afterwards;
+             }
+
              NSLog(@"%f height %f width", image.size.height, image.size.width);
-
-             //             [self setButtonsWithImage:image withVideo:false AndURL:0];
-
              [self ShowPicture:image];
-
              self.takePictureButton.userInteractionEnabled = YES;
          } else {
              NSLog(@"%@",error.userInfo);
@@ -1154,6 +1056,8 @@
 {
     [self.movieFileOutput stopRecording];
 
+    [self stopCircle];
+
     [_captureSession removeInput:self.audioInput];
 }
 
@@ -1161,23 +1065,25 @@
 {
     NSLog(@"FINISH");
 
-    [ProgressHUD show:@""];
+    [self stopCircle];
+
     AVAsset *movie = [AVAsset assetWithURL:outputFileURL];
     CMTime movieLength = movie.duration;
 
     if (movie)
     {
-        [self.videoView removeFromSuperview];
-        [self.videoView2 removeFromSuperview];
         if (CMTimeCompare(movieLength, CMTimeMake(1, 1)) == -1)
         {
             NSLog(@"TOO SHORT");
-            [ProgressHUD showError:@"Too short"];
+            [self performSelector:@selector(onTakePhotoPressed:) withObject:self.takePictureButton afterDelay:.5];
+            [ProgressHUD dismiss];
         }
         else
             if (CMTimeCompare(movieLength, CMTimeMake(11, 1)) == -1)
             {
                 NSLog(@"GOOD MOVIE");
+
+                [ProgressHUD show:@""];
 
                 //Get Image of first frame for picture.
                 AVURLAsset *asset1 = [[AVURLAsset alloc] initWithURL:outputFileURL options:nil];
@@ -1211,12 +1117,10 @@
 
                                    [UIView animateWithDuration:.3f animations:^
                                     {
-                                        self.collectionView.userInteractionEnabled = NO;
-                                        self.collectionView.alpha = .5f;
+//                                        self.collectionView.userInteractionEnabled = NO;
+//                                        self.collectionView.alpha = .5f;
                                         self.takePictureButton.userInteractionEnabled = NO;
                                         self.takePictureButton.alpha = .5f;
-                                        self.NextButton.userInteractionEnabled = NO;
-                                        self.NextButton.alpha = .5;
                                     }];
                                });
 
@@ -1229,12 +1133,10 @@
 
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [UIView animateWithDuration:.3f animations:^{
-                                self.collectionView.userInteractionEnabled = true;
-                                self.collectionView.alpha = 1.0f;
+//                                self.collectionView.userInteractionEnabled = true;
+//                                self.collectionView.alpha = 1.0f;
                                 self.takePictureButton.userInteractionEnabled = 1;
                                 self.takePictureButton.alpha = 1;
-                                self.NextButton.userInteractionEnabled = 1;
-                                self.NextButton.alpha = .9;
                             }];
                             NSLog(@"SUCCESS");
                         });
@@ -1260,6 +1162,7 @@
     AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetMediumQuality];
     exportSession.outputURL = outputURL;
     exportSession.outputFileType =AVFileTypeQuickTimeMovie;
+
     [exportSession exportAsynchronouslyWithCompletionHandler:^{
         if (exportSession.status == AVAssetExportSessionStatusCompleted)
         {
@@ -1319,18 +1222,6 @@
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
 }
 
--(void) animateNextButton
-{
-    if (!self.NextButton.isHidden)
-    {
-        [UIView animateKeyframesWithDuration:.5f delay:0.0f options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
-            self.NextButton.transform = CGAffineTransformMakeScale(1.0,1.0);
-            self.NextButton.transform = CGAffineTransformMakeScale(2.0,2.0);
-            self.NextButton.transform = CGAffineTransformMakeScale(1.0,1.0);
-        } completion:0];
-    }
-}
-
 -(void)bounceRecButton
 {
     [UIView animateKeyframesWithDuration:.5f delay:0.0f options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
@@ -1373,126 +1264,6 @@
     [self.navigationController pushViewController:picture animated:0];
 }
 
-//Depending on number of pictures, line them up accordingly when deleted.
-- (void)setButtonsWithImage:(UIImage *)image withVideo:(BOOL)isVideoTag AndURL:(NSURL *)videoURL
-{
-    if (image)
-    {
-        if (!isVideoTag && !videoURL)
-        {
-            [self.arrayOfTakenPhotos addObject:image];
-        }
-        else
-        {
-            //            Attach IMAGE TO PFFILE
-            NSDictionary *dictionary = [NSDictionary dictionaryWithObject:image forKey:videoURL.path];
-            [self.arrayOfTakenPhotos addObject:dictionary];
-        }
-
-        self.counterButton.titleLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.arrayOfTakenPhotos.count];
-
-        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.arrayOfTakenPhotos.count - 1 inSection:0];
-        [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
-
-        [_timer invalidate];
-        _timer = [NSTimer scheduledTimerWithTimeInterval:1.5f target:self selector:@selector(animateNextButton) userInfo:0 repeats:1];
-    }
-
-    if (_arrayOfTakenPhotos.count < 5 && self.takePictureButton.isHidden)
-    {
-        [UIView animateWithDuration:1.0f animations:^{
-            self.takePictureButton.alpha = 0;
-            self.takePictureButton.alpha = 1;
-            self.cameraRollButton.alpha = 0;
-            self.cameraRollButton.alpha = 1;
-            self.takePictureButton.hidden = NO;
-            self.cameraRollButton.hidden = NO;
-        }];
-    }
-    else if (_arrayOfTakenPhotos.count > 0 && self.NextButton.isHidden)
-    {
-        [UIView animateWithDuration:0.3f animations:^
-         {
-             self.NextButton.hidden = NO;
-             self.counterButton.hidden = NO;
-             self.NextButton.alpha = 0;
-             self.NextButton.alpha = 1;
-             self.counterButton.alpha = 0;
-             self.counterButton.alpha = 1;
-         }];
-    }
-    else if (_arrayOfTakenPhotos.count == 0 && self.NextButton.isHidden == NO)
-    {
-        [UIView animateWithDuration:.3f animations:^{
-            self.NextButton.alpha = 1;
-            self.NextButton.alpha = 0;
-            self.counterButton.alpha = 1;
-            self.counterButton.alpha = 0;
-            self.NextButton.hidden = YES;
-            self.counterButton.hidden = YES;
-        }];
-    }
-    else if (self.arrayOfTakenPhotos.count == 5)
-    {
-        [UIView animateWithDuration:1.0f animations:^{
-            self.takePictureButton.alpha = 1;
-            self.takePictureButton.alpha = 0;
-            self.cameraRollButton.alpha = 1;
-            self.cameraRollButton.alpha = 0;
-            self.takePictureButton.hidden = YES;
-            self.cameraRollButton.hidden = YES;
-        }];
-    }
-}
-
-
-//NEXT BUTTON PRESSED
-- (IBAction)didPressNextButton:(UIButton *)button
-{
-
-    [UIView animateWithDuration:.3 animations:^{
-        button.transform = CGAffineTransformMakeScale(0.3,0.3);
-        button.transform = CGAffineTransformMakeScale(1,1);
-    }];
-
-    button.userInteractionEnabled = NO;
-    if (_arrayOfTakenPhotos.count == 0)
-    {
-        [ProgressHUD showError:@"No Pictures Taken"];
-        button.userInteractionEnabled = YES;
-    }
-    else
-    {
-        if (self.isPoppingUp)
-        {
-            self.isPoppingUp = NO;
-
-            self.cancelButton.hidden = YES;
-            self.rightButton.hidden = NO;
-
-            [delegate sendBackPictures:_arrayOfTakenPhotos withBool:YES andComment:@""];
-
-            button.userInteractionEnabled = YES;
-
-            [self dismissViewControllerAnimated:0 completion:0];
-
-            [[UIApplication sharedApplication] setStatusBarHidden:0 withAnimation:UIStatusBarAnimationSlide];
-
-            PostNotification(NOTIFICATION_CAMERA_POPUP);
-        }
-        else
-        {
-            SelectChatroomView *selectView = [SelectChatroomView new];
-            self.delegate = selectView;
-            [[UIApplication sharedApplication] setStatusBarHidden:0];
-            [delegate sendBackPictures:_arrayOfTakenPhotos withBool:YES andComment:@""];
-
-            [self.navigationController pushViewController:selectView animated:1];
-            button.userInteractionEnabled = YES;
-        }
-    }
-}
-
 - (void)setFlashMode:(AVCaptureFlashMode)flashMode forDevice:(AVCaptureDevice *)device
 {
     if ([device hasFlash] && [device isFlashModeSupported:flashMode])
@@ -1510,7 +1281,6 @@
         }
     }
 }
-
 
 // get sub image
 - (UIImage*)getSubImageFrom:(UIImage *)imageTaken WithRect:(CGRect)rect
@@ -1598,217 +1368,9 @@
     return view;
 }
 
--(void)collectionViewDidDelete:(NSNotification *)notification
-{
-    NSIndexPath *index = notification.userInfo[@"index"];
-    [self.arrayOfTakenPhotos removeObjectAtIndex:index.item];
-    [self.collectionView deleteItemsAtIndexPaths:@[index]];
-
-    self.counterButton.titleLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.arrayOfTakenPhotos.count];
-    //Reset
-    [self setButtonsWithImage:0 withVideo:0 AndURL:0];
-}
-
--(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    return 1;
-}
-
--(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
-{
-    return self.arrayOfTakenPhotos.count;
-}
-
-- (void)collectionView:(UICollectionView *)collectionView itemAtIndexPath:(NSIndexPath *)fromIndexPath willMoveToIndexPath:(NSIndexPath *)toIndexPath
-{
-    id object = [self.arrayOfTakenPhotos objectAtIndex:fromIndexPath.item];
-    [self.arrayOfTakenPhotos removeObjectAtIndex:fromIndexPath.item];
-    [self.arrayOfTakenPhotos insertObject:object atIndex:toIndexPath.item];
-}
-
--(UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
-{
-    return UIEdgeInsetsMake(60, self.view.frame.size.width - 100, 0, 0);
-}
-
--(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    CameraCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
-
-    cell.collectionView = self.collectionView;
-
-    if (self.arrayOfTakenPhotos.count)
-    {
-        id object = [self.arrayOfTakenPhotos objectAtIndex:indexPath.item];
-
-        if ([object isKindOfClass:[NSDictionary class]]) {
-            UIImage *image = [(NSDictionary *)object allValues].firstObject;
-            NSString *path = [(NSDictionary *)object allKeys].firstObject;
-            [cell.buttonImage setImage:image forState:UIControlStateNormal];
-            cell.buttonImage.titleLabel.text = path;
-
-        } else if ([object isKindOfClass:[UIImage class]]) {
-            //Image
-            [cell.buttonImage setImage:object forState:UIControlStateNormal];
-        }
-    }
-    return cell;
-}
-
--(void)collectionViewDidTap:(NSNotification *)notification
-{
-    NSIndexPath *index = notification.userInfo[@"index"];
-    [self collectionView:self.collectionView didSelectItemAtIndexPath:index];
-}
-
--(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    int indexx = (int)indexPath.row;
-
-    self.scrollViewPop = [[UIScrollView alloc] initWithFrame:self.view.bounds];
-    self.scrollViewPop.bounces = YES;
-    self.scrollViewPop.pagingEnabled = 1;
-    self.scrollViewPop.alwaysBounceHorizontal = 1;
-    self.scrollViewPop.delegate = self;
-    self.scrollViewPop.tag = 22;
-    self.scrollViewPop.directionalLockEnabled = YES;
-    self.scrollViewPop.showsHorizontalScrollIndicator = 0;
-
-    _arrayOfScrollview = [NSMutableArray arrayWithCapacity:self.arrayOfTakenPhotos.count];
-
-    self.scrollViewPop.contentSize = CGSizeMake(self.view.bounds.size.width * self.arrayOfTakenPhotos.count, self.view.bounds.size.width);
-
-    self.pageControl = [[UIPageControl alloc] initWithFrame:CGRectMake(0, self.scrollViewPop.frame.size.height - 20, self.scrollViewPop.frame.size.width, 10)];
-    [self.pageControl setNumberOfPages:_arrayOfTakenPhotos.count];
-    [self.pageControl setCurrentPage:(indexx)];
-
-    int count = (int)self.arrayOfTakenPhotos.count;
-
-    for (id pictureOrDic in self.arrayOfTakenPhotos)
-    {
-        CGRect rect = CGRectMake(([self.arrayOfTakenPhotos indexOfObject:pictureOrDic] * self.view.bounds.size.width - 2) + 2, 0, self.view.frame.size.width, self.view.frame.size.height);
-
-        if ([pictureOrDic isKindOfClass:[NSDictionary class]]) // VIDEO
-        {
-            NSDictionary *dic = (NSDictionary *)pictureOrDic;
-            NSString *path = dic.allKeys.firstObject;
-            NSURL *url = [NSURL fileURLWithPath:path];
-
-            int index = (int)[self.arrayOfTakenPhotos indexOfObject:pictureOrDic];
-
-            MPMoviePlayerController *moviePlayer = [[MPMoviePlayerController alloc] initWithContentURL:url];
-            moviePlayer.view.frame = rect;
-            moviePlayer.view.layer.shouldRasterize = 1;
-            moviePlayer.view.layer.rasterizationScale = [UIScreen mainScreen].scale;
-            moviePlayer.view.layer.masksToBounds = YES;
-            moviePlayer.view.contentMode = UIViewContentModeScaleToFill;
-            moviePlayer.view.layer.cornerRadius = moviePlayer.view.frame.size.width/10;
-            moviePlayer.view.layer.borderColor = [UIColor whiteColor].CGColor;
-            moviePlayer.view.layer.borderWidth = 5;
-            moviePlayer.view.layer.cornerRadius = 10;
-            moviePlayer.view.userInteractionEnabled = 1;
-            moviePlayer.view.clipsToBounds = YES;
-
-            [moviePlayer setScalingMode:MPMovieScalingModeAspectFill];
-            [moviePlayer setMovieSourceType:MPMovieSourceTypeFile];
-            moviePlayer.controlStyle = MPMovieControlStyleNone;
-            moviePlayer.repeatMode = MPMovieRepeatModeOne;
-            [moviePlayer setShouldAutoplay:NO];
-            moviePlayer.backgroundView.alpha = 0;
-
-            moviePlayer.view.backgroundColor = [UIColor lightGrayColor];
-            moviePlayer.backgroundView.backgroundColor = [UIColor lightGrayColor];
-
-            [moviePlayer play];
-
-            UIButton *closeButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, 40, 40)];
-            closeButton.imageView.hidden = YES;
-            [closeButton addTarget:self action:@selector(didTap:) forControlEvents:UIControlEventTouchUpInside];
-            [closeButton setImage:[UIImage imageNamed:ASSETS_CLOSE] forState:UIControlStateNormal];
-            closeButton.backgroundColor = [UIColor benFamousGreen];
-            closeButton.layer.masksToBounds = 1;
-            closeButton.layer.cornerRadius = 5;
-            closeButton.layer.borderColor = [UIColor whiteColor].CGColor;
-            closeButton.layer.borderWidth = 2;
-            [moviePlayer.view addSubview:closeButton];
-
-            [self.scrollViewPop addSubview:moviePlayer.view];
-            [self.arrayOfScrollview addObject:moviePlayer];
-            count--;
-
-            if (count == 0)
-            {
-                [self.scrollViewPop setContentOffset:CGPointMake((self.view.frame.size.width * indexx), 0) animated:0];
-
-                UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
-                [self.pop addGestureRecognizer:tap];
-
-                self.pop = [KLCPopup popupWithContentView:self.scrollViewPop showType:KLCPopupShowTypeSlideInFromLeft dismissType:KLCPopupDismissTypeSlideOutToLeft maskType:KLCPopupMaskTypeDimmed dismissOnBackgroundTouch:0 dismissOnContentTouch:0];
-
-                [self.pop addSubview:self.pageControl];
-
-                [self.pop show];
-            }
-        }
-        else if ([pictureOrDic isKindOfClass:[UIImage class]])
-        {
-
-            UIImageView *popUpImageView;
-            UIImage *image = (UIImage *)pictureOrDic;
-            popUpImageView = [[UIImageView alloc] initWithFrame:rect];
-            popUpImageView.image = image;
-            popUpImageView.layer.masksToBounds = YES;
-            popUpImageView.contentMode = UIViewContentModeScaleToFill;
-            popUpImageView.layer.cornerRadius = popUpImageView.frame.size.width/10;
-            popUpImageView.layer.borderColor = [UIColor whiteColor].CGColor;
-            popUpImageView.layer.borderWidth = 5;
-            popUpImageView.layer.cornerRadius = 10;
-            popUpImageView.userInteractionEnabled = YES;
-
-            UIButton *saveImageButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, 40, 40)];
-
-            saveImageButton.imageView.hidden = YES;
-
-            [saveImageButton addTarget:self action:@selector(didTap:) forControlEvents:UIControlEventTouchUpInside];
-
-            [saveImageButton setImage:[UIImage imageNamed:ASSETS_CLOSE] forState:UIControlStateNormal];
-            saveImageButton.backgroundColor = [UIColor benFamousGreen];
-            saveImageButton.layer.masksToBounds = 1;
-            saveImageButton.layer.cornerRadius = 5;
-            saveImageButton.layer.borderColor = [UIColor whiteColor].CGColor;
-            saveImageButton.layer.borderWidth = 2;
-
-            [popUpImageView addSubview:saveImageButton];
-
-            [self.scrollViewPop addSubview:popUpImageView];
-            [self.arrayOfScrollview addObject:popUpImageView];
-
-            count--;
-
-            if (count == 0)
-            {
-                [self.scrollViewPop setContentOffset:CGPointMake((self.view.frame.size.width * indexx), 0) animated:0];
-
-                self.pop = [KLCPopup popupWithContentView:self.scrollViewPop showType:KLCPopupShowTypeSlideInFromLeft dismissType:KLCPopupDismissTypeSlideOutToLeft maskType:KLCPopupMaskTypeDimmed dismissOnBackgroundTouch:0 dismissOnContentTouch:0];
-
-                UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
-                [self.pop addGestureRecognizer:tap];
-
-                [self.pop addSubview:self.pageControl];
-
-                [self.pop show];
-            }
-            //Hid it in the KLCPopup code.
-        }
-    }//end for loop
-}
-
-//KLCPopup
 - (void)didTap:(UITapGestureRecognizer *)tap
 {
     [[UIApplication sharedApplication] setStatusBarHidden:1 withAnimation:UIStatusBarAnimationSlide];
-
-    [self.pop dismiss:1];
-    [KLCPopup dismissAllPopups];
 
     for (MPMoviePlayerController *object in self.arrayOfScrollview)
     {

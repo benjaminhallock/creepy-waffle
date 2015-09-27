@@ -1,16 +1,8 @@
-
-
-#import <Parse/Parse.h>
 #import "ProgressHUD.h"
 #import "utilities.h"
-
-#import "AppConstant.h"
 #import "pushnotification.h"
-#import "AppDelegate.h"
 #import "LoginView.h"
-#import "UIColor.h"
 #import "VerifyTextView.h"
-
 
 @interface LoginView ()
 
@@ -25,6 +17,7 @@
 
 @property (weak, nonatomic) IBOutlet UIButton *loginButton;
 
+@property NSDate *dateUntilNextText;
 @property NSString *phoneNumber;
 
 @end
@@ -59,6 +52,15 @@
 
 - (void) sendText:(PFUser *)userFound
 {
+    if (self.dateUntilNextText.timeIntervalSinceNow > 0)
+    {
+        NSString *string = [NSString stringWithFormat:@"Please wait %i seconds", (int)self.dateUntilNextText.timeIntervalSinceNow];
+
+        [ProgressHUD showError:string];
+        return;
+
+    }
+
     NSDictionary *params = [NSDictionary dictionaryWithObject:phoneNumber forKey:@"phoneNumber"];
 
     [PFCloud callFunctionInBackground:@"sendVerificationCode" withParameters:params block:^(id object, NSError *error)
@@ -67,8 +69,6 @@
          {
              NSLog(@"%@ Twilio Return", object);
 
-             [PFQuery clearAllCachedResults];
-
              [ProgressHUD showSuccess:@"Text Sent"];
 
              VerifyTextView *tableview = [[VerifyTextView alloc] initWithStyle:UITableViewStyleGrouped];
@@ -76,6 +76,11 @@
              tableview.user = [PFUser currentUser];
              tableview.phoneNumber = phoneNumber;
              tableview.isLoggingIn = YES;
+
+             self.dateUntilNextText = [NSDate dateWithTimeIntervalSinceNow:30];
+
+
+
              [self.navigationController pushViewController:tableview animated:1];
          }
          else
@@ -100,7 +105,7 @@
 	self.title = @"Login";
 
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithTitle:@">"
-                                                             style:UIBarButtonItemStylePlain target:self action:@selector(didSlideLeft:)];
+                                                             style:UIBarButtonItemStylePlain    target:self action:@selector(didSlideLeft:)];
     item.image = [UIImage imageNamed:ASSETS_BACK_BUTTON];
     self.navigationItem.leftBarButtonItem = item;
 

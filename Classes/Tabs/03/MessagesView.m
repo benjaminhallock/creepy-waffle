@@ -1,46 +1,23 @@
 
-#import <Parse/Parse.h>
-#import "ProgressHUD.h"
-#import "AppConstant.h"
-#import "messages.h"
-#import "pushnotification.h"
-#import "utilities.h"
-#import "IQKeyboardManager.h"
-#import "camera.h"
-#import "SettingsViewController.h"
-#import "utilities.h"
-#import "MasterLoginRegisterView.h"
-#import "MasterScrollView.h"
 #import "MessagesView.h"
 #import "MessagesCell.h"
+
+#import "ProgressHUD.h"
+#import "IQKeyboardManager.h"
+
+#import "SettingsViewController.h"
+#import "MasterLoginRegisterView.h"
 #import "ChatView.h"
-#import "CustomCameraView.h"
-#import "UIColor.h"
-#import "CustomCollectionViewCell.h"
-#import "LoginView.h"
+#import "NavigationController.h"
 #import "CreateChatroomView.h"
-#import "NSDate+TimeAgo.h"
-#import <sys/utsname.h> // Device name.
-#import "AppDelegate.h"
 
 @interface MessagesView ()
 
 @property UITapGestureRecognizer *tap;
 @property UILongPressGestureRecognizer *longPress;
-@property NSMutableArray *savedPhotoObjects; /// NOT USED
-@property NSMutableDictionary *colorsForRoom;
 @property NSMutableArray *savedDates;
 @property NSMutableDictionary *savedMessagesForDate;
 
-@property NSMutableArray *customChatPictures;
-@property NSMutableArray *customChatMessages;
-@property NSMutableArray *arrayOfAvailableColors;
-
-@property UIColor *customColor;
-@property NSString *customSetId;
-@property NSString *customChatTitle;
-
-@property PFObject *commentObject; //comment send by delegate
 @property PFObject *albumToDelete;
 @property PFObject *messageToRenameDelete;
 
@@ -55,8 +32,6 @@
 @property (strong, nonatomic) UIImageView *imageView2;
 
 @property IBOutlet UIView *viewHeader;
-
-@property IBOutlet UISearchBar *searchBar;
 @property IBOutlet UITextField *searchTextField;
 @property IBOutlet UIButton *searchCloseButton;
 @property NSMutableArray *searchMessages;
@@ -68,11 +43,10 @@
 @property BOOL isRefreshIconsOverlap;
 @property BOOL isLoadingChatView;
 @property BOOL isRefreshAnimating;
-
 @property UIView *refreshLoadingView;
 @property UIImageView *compassSpinner;
-@property UIView *refreshColorView;
 @property UIImageView *compassBackground;
+@property UIView *refreshColorView;
 @property  UIRefreshControl *refreshControl;
 
 @property (strong, nonatomic) IBOutlet UITableView *tableView;
@@ -87,6 +61,7 @@
 
 - (IBAction)didSelectCompose:(id)sender
 {
+    NSLog(@"%f", self.view.frame.size.height);
     CreateChatroomView *chat = [CreateChatroomView new];
     chat.isTherePicturesToSend = NO;
     self.hidesBottomBarWhenPushed = true;
@@ -95,7 +70,6 @@
 }
 
 #pragma mark - NOTIFICATION
-
 - (void)enableScrollview:(NSNotification *)notification
 {
     self.scrollView.scrollEnabled = YES;
@@ -185,19 +159,10 @@
 
     self.viewEmpty.hidden = YES;
     self.didViewJustLoad = YES;
-    self.navigationItem.title = @"SnapBen";
+    self.navigationItem.title = @"Snap Ben";
 
     self.longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
     [self.view addGestureRecognizer:self.longPress];
-
-    /*
-    _composeButton.titleLabel.text = @"NEW CONVERSATION";
-    _composeButton.titleLabel.textColor = [UIColor benFamousGreen];
-    [_composeButton setImage:[[UIImage imageNamed:@"Compose"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-    _composeButton.tintColor = [UIColor benFamousGreen];
-    _composeButton.imageView.tintColor = [UIColor benFamousGreen];
-    [self.view addSubview:self.composeButton];
-     */
 
     _searchCloseButton.hidden = YES;
     [self clearAll];
@@ -215,7 +180,6 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshMessages) name:NOTIFICATION_USER_LOGGED_OUT object:0];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshMessages) name:NOTIFICATION_USER_LOGGED_IN object:0];
-
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshMessages) name:NOTIFICATION_REFRESH_INBOX object:0];
 
@@ -252,15 +216,12 @@
         self.scrollView.scrollEnabled = NO;
     }
 
-    if (self.didViewJustLoad) [self.searchBar resignFirstResponder];
+    if (self.didViewJustLoad) [self.searchTextField resignFirstResponder];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-
-    [[UIApplication sharedApplication] setStatusBarHidden:NO
-                                            withAnimation:UIStatusBarAnimationFade];
     [self.tableView reloadData];
     [self updateEmptyView];
 
@@ -273,8 +234,6 @@
     self.savedDates = [NSMutableArray new];
     self.savedMessagesForDate = [NSMutableDictionary new];
     self.messagesObjectIds = [NSMutableArray new];
-    self.colorsForRoom = [NSMutableDictionary new];
-    self.arrayOfAvailableColors = [NSMutableArray arrayWithArray: [AppConstant arrayOfColors]];
 }
 
 -(void)viewWillDisappear:(BOOL)animated
@@ -335,8 +294,8 @@
         [query includeKey:PF_MESSAGES_LASTPICTUREUSER];
         [query whereKey:PF_MESSAGES_HIDE_UNTIL_NEXT equalTo:@NO];
 
-        //      PFObject *message = messages.lastObject;
-        //    if (message) [query whereKey:PF_MESSAGES_UPDATEDACTION greaterThan:message.updatedAt];
+//      PFObject *message = messages.lastObject;
+//    if (message) [query whereKey:PF_MESSAGES_UPDATEDACTION greaterThan:message.updatedAt];
 
         //Clear the cache if there is a delete.
         //        [query clearCachedResult];
@@ -466,13 +425,14 @@
 {
     if ([[[PFUser currentUser] valueForKey:PF_USER_ISVERIFIED] isEqualToNumber:@YES])
     {
+        [self.tabBarController setSelectedIndex:0];
         [self loadInbox];
     }
     else
     {
         MasterLoginRegisterView *login = [MasterLoginRegisterView new];
-        [self.navigationController showDetailViewController:login sender:self];
-        [self.scrollView setContentOffset:CGPointMake(self.view.frame.size.width, 0) animated:1];
+        [self.tabBarController showDetailViewController:login sender:self];
+//        [self.scrollView setContentOffset:CGPointMake(self.view.frame.size.width, 0) animated:1];
         [self actionCleanup];
     }
 }
@@ -516,13 +476,7 @@
     [self.messagesObjectIds removeAllObjects];
     [self.savedDates removeAllObjects];
     [self.savedMessagesForDate removeAllObjects];
-
     //Clear the cache of videos.
-    NSArray* tmpDirectory = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:NSTemporaryDirectory() error:NULL];
-    for (NSString *file in tmpDirectory) {
-        [[NSFileManager defaultManager] removeItemAtPath:[NSString stringWithFormat:@"%@%@", NSTemporaryDirectory(), file] error:NULL];
-    }
-
     [self.tableView reloadData];
 }
 
@@ -661,18 +615,19 @@
 
 -(NSArray *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewRowAction *button = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDefault title:@"Delete" handler:^(UITableViewRowAction *action, NSIndexPath *indexPath) {
+    UITableViewRowAction *button =
 
+    [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDefault title:@"Hide" handler:^(UITableViewRowAction *action, NSIndexPath *indexPath)
+    {
         [self.tableView setEditing:0 animated:1];
 
         NSDate *dateRepresentingThisDay = [self.savedDates objectAtIndex:indexPath.section];
-
         NSMutableArray *eventsOnThisDay = [self.savedMessagesForDate objectForKey:dateRepresentingThisDay];
 
+        [PFQuery clearAllCachedResults];
+
         PFObject  *message = [eventsOnThisDay objectAtIndex:indexPath.row];
-
         [message setValue:@YES forKey:PF_MESSAGES_HIDE_UNTIL_NEXT];
-
         [message saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
             if (!error) {
                 //Remove all traces of messages
@@ -685,6 +640,7 @@
                 [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
                 [self.tableView endUpdates];
 
+                [self.tableView reloadData];
                 //
                 [self updateEmptyView];
             }
@@ -809,13 +765,15 @@
                 {
                     [self.tableView setEditing:0 animated:1];
                     [self.tableView reloadData];
-                } else {
+                }
+                else
+                {
                     NSLog(@"Rename Error %@", error.userInfo);
                 }
             }];
-
-        } else {
-
+        }
+        else
+        {
             [ProgressHUD showError:@"Cancelled"];
             NSLog(@"canceled rename");
             [alertView dismissWithClickedButtonIndex:0 animated:1];
@@ -854,16 +812,6 @@
         chatView.message = message;
 
         chatView.title = cell.labelDescription.text;
-
-        /*
-         CATransition* transition = [CATransition animation];
-         transition.duration = 0.3;
-         transition.type = kCATransitionPush;
-         transition.subtype = kCATransitionFromRight;
-         transition.timingFunction = UIViewAnimationCurveEaseInOut;
-         transition.fillMode = kCAFillModeForwards;
-         [self.navigationController.view.layer addAnimation:transition forKey:kCATransition];
-         */
 
         self.hidesBottomBarWhenPushed = YES;
         [self.navigationController pushViewController:chatView animated:YES];
@@ -912,9 +860,10 @@
     [self.tableView addSubview:_refreshControl];
 }
 
--(void)viewDidDisappear:(BOOL)animated {
+-(void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
     [self.tableView setEditing:0 animated:1];
-    [self.searchBar setText:0];
 }
 
 - (void)animateRefreshView
@@ -1055,79 +1004,6 @@
     self.refreshColorView.backgroundColor = [UIColor clearColor];
 }
 
-- (NSNumber *)deviceModelName
-{
-    struct utsname systemInfo;
-    uname(&systemInfo);
-
-    NSString *machineName = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
-
-    //MARK: More official list is at
-    //http://theiphonewiki.com/wiki/Models
-    //MARK: You may just return machineName. Following is for convenience
-
-    NSDictionary *commonNamesDictionary =
-    @{
-      @"i386":   @14, //@"iPhone Simulator",
-      @"x86_64": @14, //@"iPad Simulator",
-
-      @"iPhone1,1": @20,  // @"iPhone",
-      @"iPhone1,2": @20,  // @"iPhone 3G",
-      @"iPhone2,1": @20,  // @"iPhone 3GS",
-      @"iPhone3,1": @16,  // @"iPhone 4",
-      @"iPhone3,2": @16,  // @"iPhone 4(Rev A)",
-      @"iPhone3,3": @16,  // @"iPhone 4(CDMA)",
-      @"iPhone4,1": @15,  // @"iPhone 4S",
-      @"iPhone5,1": @14,  // @"iPhone 5(GSM)",
-      @"iPhone5,2": @14,  // @"iPhone 5(GSM+CDMA)",
-      @"iPhone5,3": @10,  // @"iPhone 5c(GSM)",
-      @"iPhone5,4": @10,  // @"iPhone 5c(GSM+CDMA)",
-      @"iPhone6,1": @9,  // @"iPhone 5s(GSM)",
-      @"iPhone6,2": @9,  // @"iPhone 5s(GSM+CDMA)",
-      @"iPhone7,1": @9,  // @"iPhone 6+ (GSM+CDMA)",
-      @"iPhone7,2": @9,  // @"iPhone 6 (GSM+CDMA)",
-
-      @"iPad1,1":  @"iPad",
-      @"iPad2,1":  @"iPad 2(WiFi)",
-      @"iPad2,2":  @"iPad 2(GSM)",
-      @"iPad2,3":  @"iPad 2(CDMA)",
-      @"iPad2,4":  @"iPad 2(WiFi Rev A)",
-      @"iPad2,5":  @"iPad Mini 1G (WiFi)",
-      @"iPad2,6":  @"iPad Mini 1G (GSM)",
-      @"iPad2,7":  @"iPad Mini 1G (GSM+CDMA)",
-      @"iPad3,1":  @"iPad 3(WiFi)",
-      @"iPad3,2":  @"iPad 3(GSM+CDMA)",
-      @"iPad3,3":  @"iPad 3(GSM)",
-      @"iPad3,4":  @"iPad 4(WiFi)",
-      @"iPad3,5":  @"iPad 4(GSM)",
-      @"iPad3,6":  @"iPad 4(GSM+CDMA)",
-
-      @"iPad4,1":  @"iPad Air(WiFi)",
-      @"iPad4,2":  @"iPad Air(GSM)",
-      @"iPad4,3":  @"iPad Air(GSM+CDMA)",
-
-      @"iPad4,4":  @"iPad Mini 2G (WiFi)",
-      @"iPad4,5":  @"iPad Mini 2G (GSM)",
-      @"iPad4,6":  @"iPad Mini 2G (GSM+CDMA)",
-
-      @"iPod1,1":  @"iPod 1st Gen",
-      @"iPod2,1":  @"iPod 2nd Gen",
-      @"iPod3,1":  @"iPod 3rd Gen",
-      @"iPod4,1":  @"iPod 4th Gen",
-      @"iPod5,1":  @"iPod 5th Gen",
-
-      };
-
-    NSNumber *deviceName = commonNamesDictionary[machineName];
-
-    if (deviceName == nil) {
-        deviceName = @4.0;
-    }
-
-    return deviceName;
-}
-
-
 #pragma mark - UISearchBarDelegate
 
 - (void)searchMessages:(NSString *)search_lower
@@ -1190,23 +1066,6 @@
 {
     [textField resignFirstResponder];
     return YES;
-}
-
-- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
-{
-    [self searchBarCancelled];
-}
-
-- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar_
-{
-    [searchBar_ resignFirstResponder];
-}
-
-- (void)searchBarCancelled
-{
-    self.searchBar.text = @"Search...";
-    [self.searchBar resignFirstResponder];
-    [self.tableView reloadData];
 }
 
 @end

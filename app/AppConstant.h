@@ -1,5 +1,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <Parse/Parse.h>
+#import <ParseUI/ParseUI.h>
+#import "UIColor.h"
 
 @interface AppConstant : NSObject
 + (NSArray *)arrayOfColors;
@@ -112,7 +115,7 @@
 #define		NOTIFICATION_REFRESH_FAVORITES      @"refreshFavoritesView"
 #define		NOTIFICATION_USER_LOGGED_OUT		@"NCUserLoggedOut"
 
-#define		ASSETS_NEW_PEOPLE                   @"Add People Button"
+#define		ASSETS_NEW_PEOPLE                   @"addContacts"
 #define		ASSETS_TYPING                       @"typing"
 #define		ASSETS_NEW_SETTINGS                 @"settings"
 #define		ASSETS_INBOX                        @"Inbox"
@@ -127,7 +130,7 @@
 #define		ASSETS_BACK_BUTTON                  @"Back Button FAV"
 #define		ASSETS_BACK_BUTTON_RIGHT            @"Back Button INBOX"
 #define		ASSETS_BACK_BUTTON_DOWN             @"Back Button DOWN"
-#define		ASSETS_CLOSE                        @"close"
+#define		ASSETS_CLOSE                        @"close3"
 #define     ASSETS_UNREAD                       @"1unreadMesseageIcon"
 #define     ASSETS_READ                         @"1readMesseageIcon"
 #define     ASSETS_STAR_ON                      @"star-on2"

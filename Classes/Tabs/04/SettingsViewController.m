@@ -1,59 +1,28 @@
-
-
-#import <Parse/Parse.h>
-
-#import <ParseUI/ParseUI.h>
-
 #import "ProgressHUD.h"
-
 #import "AppConstant.h"
-
 #import "camera.h"
-
 #import "pushnotification.h"
-
 #import "utilities.h"
-
-#import "AppDelegate.h"
-
 #import "SettingsViewController.h"
-
 #import "MasterLoginRegisterView.h"
 
 @interface SettingsViewController ()
-
 @property (strong, nonatomic) IBOutlet UIView *viewHeader;
-
 @property (strong, nonatomic) IBOutlet UITableViewCell *cellName;
-
 @property (strong, nonatomic) IBOutlet UITableViewCell *cellPhoneNumber;
-
 @property (strong, nonatomic) IBOutlet UITableViewCell *cellTOS;
-
 @property (strong, nonatomic) IBOutlet UITableViewCell *cellPP;
-
 @property (strong, nonatomic) IBOutlet UITextField *fieldPhoneNumber;
-
 @property (strong, nonatomic) IBOutlet UITableViewCell *cellButton;
-
 @property (strong, nonatomic) IBOutlet UITableViewCell *cellVibrate;
-
 @property (strong, nonatomic) IBOutlet UITextField *fieldName;
-
 @property (strong, nonatomic) IBOutlet UISwitch *switchVibrate;
-
 @property (strong, nonatomic) IBOutlet UIButton *buttonLogout;
-
 @end
 
 @implementation SettingsViewController
 
-@synthesize viewHeader;
-
-@synthesize cellName, cellButton, cellVibrate;
-
-@synthesize fieldName;
-
+@synthesize cellName, cellButton, cellVibrate, viewHeader, fieldName;
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
@@ -69,16 +38,16 @@
 
 - (void)viewDidLoad
 {
-    _buttonLogout.backgroundColor = [UIColor whiteColor];
+    [super viewDidLoad];
+	self.title = @"Settings";
 
-	[super viewDidLoad];
-
-    self.tableView.showsHorizontalScrollIndicator = NO;
-    self.tableView.showsVerticalScrollIndicator = NO;
+    self.buttonLogout.backgroundColor = [UIColor whiteColor];
+    self.tableView.separatorInset = UIEdgeInsetsZero;
+    cellButton.backgroundColor = [UIColor clearColor];
+    self.tableView.separatorInset = UIEdgeInsetsZero;
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(actionDismiss) name:NOTIFICATION_CLICKED_PUSH object:0];
-
-    cellButton.backgroundColor = [UIColor clearColor];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(profileLoad) name:NOTIFICATION_USER_LOGGED_IN object:0];
 
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     if ([userDefaults boolForKey:PF_KEY_SHOULDVIBRATE]) {
@@ -87,29 +56,11 @@
         [_switchVibrate setOn:0 animated:1];
     }
 
-	self.title = @"Settings";
-/*
-   UIBarButtonItem *close =  [[UIBarButtonItem alloc] initWithTitle:@"Close " style:UIBarButtonItemStyleBordered target:self
-                                    action:@selector(actionDismiss)];
-    close.image = [UIImage imageNamed:ASSETS_CLOSE];
-    self.navigationItem.rightBarButtonItem = close;
-*/
 	[self.view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)]];
-    self.tableView.separatorInset = UIEdgeInsetsZero;
-
     UIPanGestureRecognizer *pan = [UIPanGestureRecognizer new];
     [self.view addGestureRecognizer:pan];
 
-    if ([PFUser currentUser] != nil)
-    {
-        [self profileLoad];
-    }
-}
-
-- (void)viewDidAppear:(BOOL)animated
-{
-	[super viewDidAppear:animated];
-
+    if ([PFUser currentUser] != nil)   [self profileLoad];
 }
 
 - (void)dismissKeyboard
@@ -180,9 +131,7 @@
         [PFUser logOut];
         fieldName.text = @"";
         ParsePushUserResign();
-        [self dismissViewControllerAnimated:1 completion:^{
-            PostNotification(NOTIFICATION_USER_LOGGED_OUT);
-        }];
+        PostNotification(NOTIFICATION_USER_LOGGED_OUT);
     }
 }
 

@@ -2,12 +2,9 @@
 
 #import "MasterScrollView.h"
 #import "ChatView.h"
-#import "AppDelegate.h"
 #import "pushnotification.h"
 #import "utilities.h"
 #import "messages.h"
-#import "AppConstant.h"
-
 @implementation MasterScrollView
 {
     CGFloat lastContentOffset;
@@ -33,17 +30,15 @@
 
 - (void)openView:(UIViewController *)view2
 {
-    NavigationController *_navInbox = [(AppDelegate *)[[UIApplication sharedApplication] delegate] navInbox];
-
-    if ([_navInbox.viewControllers.lastObject isKindOfClass:[ChatView class]])
+    if ([self.navInbox.viewControllers.lastObject isKindOfClass:[ChatView class]])
     {
         //Your in a different chat.
-        [_navInbox popViewControllerAnimated:0];
+        [self.navInbox popViewControllerAnimated:0];
     }
     else
     {
         //New Conversation Perhaps.
-        [_navInbox popToRootViewControllerAnimated:0];
+        [self.navInbox popToRootViewControllerAnimated:0];
     }
 
     /// IF CUSTOM CHAT ROOM IS SAME AS ROOM BEFORE, POP THE STACK ONCE.
@@ -53,23 +48,20 @@
     messagesView.hidesBottomBarWhenPushed = NO;
 
     [self setContentOffset:CGPointMake([UIScreen mainScreen].bounds.size.width, 0) animated:0];
-
 }
 
 
 - (BOOL) checkIfCurrentChatIsEqualToRoom:(NSString *)roomId didComeFromBackground:(BOOL)isBack
 {
-    NavigationController *nav = [(AppDelegate *)[[UIApplication sharedApplication] delegate] navInbox];
-
     //If there is a popup camera.
-    if (nav.presentedViewController)
+    if (self.navInbox.presentedViewController)
     {
         return NO;
     }
     
-    if ([nav.viewControllers.lastObject isKindOfClass:[ChatView class]])
+    if ([self.navInbox.viewControllers.lastObject isKindOfClass:[ChatView class]])
     {
-        ChatView *chatView = nav.viewControllers.lastObject;
+        ChatView *chatView = self.navInbox.viewControllers.lastObject;
         if ([chatView.room.objectId isEqualToString: roomId])
         {
             [chatView refresh];
@@ -79,7 +71,7 @@
         {
             //POP CURRENT ROOM IF NOT PUSH ROOM.//ACTUALLY NO, ONLY IF COMING FROM BACKGROUND.
             if (isBack) {
-                [nav popToRootViewControllerAnimated:0];
+                [self.navInbox popToRootViewControllerAnimated:0];
             }
         }
     }

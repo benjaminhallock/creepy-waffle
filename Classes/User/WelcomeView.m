@@ -1,11 +1,5 @@
-
-#import <Parse/Parse.h>
 #import "ProgressHUD.h"
 #import "WelcomeView.h"
-
-#import "AppConstant.h"
-#import "pushnotification.h"
-#import "utilities.h"
 
 @implementation WelcomeView
 
@@ -13,7 +7,7 @@
 {
 	[super viewDidLoad];
 	self.title = @"Welcome";
-    self.imageView.frame = CGRectMake(0, -344, 110, 351);
+    self.imageView.frame = CGRectMake(0, -344, 330, 330);
     self.label.frame = CGRectMake(0, -344, 100, 40);
 
     UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithTitle:@"Back" style:UIBarButtonItemStylePlain target:nil action:nil];
@@ -30,7 +24,7 @@
 
     [UIView animateWithDuration:0.3f delay:1.0 usingSpringWithDamping:5.0f initialSpringVelocity:1.0f options:UIViewAnimationOptionCurveEaseInOut animations:^{
         self.imageView.frame = CGRectMake(0, 144, 330, 330);
-        self.view.backgroundColor = [UIColor whiteColor];
+        self.view.backgroundColor = [UIColor benFamousOrange];
         self.view.backgroundColor = [UIColor benFamousGreen];
     } completion:0];
 

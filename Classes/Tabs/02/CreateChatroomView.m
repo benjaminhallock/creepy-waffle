@@ -1,25 +1,23 @@
 
-#import <Parse/Parse.h>
 #import "ProgressHUD.h"
 #import "AppConstant.h"
 #import "messages.h"
 #import "utilities.h"
-#import "AppDelegate.h"
+
 #import "CreateChatroomView.h"
 #import "CreateChatroomView2.h"
 #import "ChatView.h"
-#import <AddressBook/AddressBook.h>
+#import "NavigationController.h"
+
+//#import <AddressBook/AddressBook.h>
 #import <AddressBookUI/AddressBookUI.h>
-#import "pushnotification.h"
 
 @interface CreateChatroomView () <CreateChatroom2Delegate>
 {
     NSMutableArray *users;
     NSMutableArray *usersObjectIds;
-
     NSMutableDictionary *lettersForWords;
     NSArray *sortedKeys;
-
     UITextField *labelForContactsIndicator;
     int x;
     NSString *peopleWaiting;
@@ -36,26 +34,17 @@
 @property (strong, nonatomic) NSMutableArray *arrayofSelectedPhoneNumbers;
 
 @property UITapGestureRecognizer *tap;
-
 @property NSMutableArray *numbers;
-
 @property UITableViewCell *selectedCell;
-
 @property BOOL isSearching;
-
 @property (strong, nonatomic)  NSMutableDictionary *arrayOfNamesAndNumbers;
-
-@property (strong, nonatomic) UIButton *buttonSend;
-
+@property (strong, nonatomic) IBOutlet UIButton *buttonSend;
 @property BOOL isNotGoingBack;
 @end
 
 @implementation CreateChatroomView
 
-@synthesize delegate, arrayOfNamesAndNumbers, numbers;
-
-@synthesize viewHeader, searchBar, tap;
-
+@synthesize delegate, arrayOfNamesAndNumbers, numbers, viewHeader, searchBar, tap;
 
 //You just hit send in the contacts view.
 - (void)sendBackArrayOfPhoneNumbers:(NSMutableArray *)array andDidPressSend:(BOOL)send andText:(NSString *)text
@@ -68,8 +57,9 @@
 
 - (IBAction)didPressSendButton:(UIButton *)sender
 {
-    self.buttonSend.userInteractionEnabled = NO;
+    self.buttonSend.userInteractionEnabled = false;
     [self sendWithTextMessage];
+    self.buttonSend.userInteractionEnabled = true;
 }
 
 - (void)actionContacts
@@ -81,11 +71,17 @@
     contacts.arrayofSelectedPhoneNumbers = _arrayofSelectedPhoneNumbers;
     contacts.arrayOfNamesAndNumbers = arrayOfNamesAndNumbers;
     self.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:contacts animated:1];
+    NavigationController *nav = [[NavigationController alloc] initWithRootViewController:contacts];
+    [self presentViewController:nav animated:1 completion:0];
+
+//    [self.navigationController pushViewController:contacts animated:1];
 }
 
 -(void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
+    NSLog(@"%f", [UIScreen mainScreen].bounds.size.height);
+    NSLog(@"%f %f", self.view.frame.size.height, self.view.frame.size.width);
     [self togglePhoneNumbersCountIndicator];
 }
 
@@ -109,16 +105,27 @@
 
 - (void)viewDidLoad
 {
+#warning FETCHING CONTACTS
+    [self getAllContacts];
+
+    NSLog(@"%f", [UIScreen mainScreen].bounds.size.height);
+    NSLog(@"%f %f", self.view.frame.size.height, self.view.frame.size.width);
+
     int size = 25;
-    self.buttonSend = [[UIButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width - size, self.view.frame.size.height + size, size * 2, size * 2)];
-    self.buttonSend.layer.cornerRadius = size;
-    [self.buttonSend setImage:[UIImage imageNamed:ASSETS_BACK_BUTTON_RIGHT] forState:UIControlStateNormal];
-    [self.buttonSend addTarget:self action:@selector(didPressSendButton:) forControlEvents:UIControlEventTouchUpInside];
-    self.buttonSend.titleLabel.text = @"S";
+    CGRect one = CGRectMake(self.view.frame.size.width - size, self.view.frame.size.height + size, size * 4, size * 4);
+    CGRect two = CGRectMake(-70, self.view.frame.size.height - 10, self.view.frame.size.width, 70);
+//    self.buttonSend = [[UIButton alloc] initWithFrame:one];
+    self.buttonSend.layer.cornerRadius = size * 4/2;
+    self.buttonSend.layer.borderColor = [UIColor benFamousGreen].CGColor;
+    self.buttonSend.layer.borderWidth = 2;
+    [self.buttonSend setImage:[UIImage imageNamed:ASSETS_NEW_PEOPLE] forState:UIControlStateNormal];
+    [self.buttonSend addTarget:self action:@selector(actionContacts) forControlEvents:UIControlEventTouchUpInside];
+    self.buttonSend.imageView.tintColor = [UIColor benFamousGreen];
+    self.buttonSend.titleLabel.text = @"SEND";
     self.buttonSend.titleLabel.textColor = [UIColor whiteColor];
     self.buttonSend.titleLabel.textAlignment = NSTextAlignmentCenter;
     self.buttonSend.backgroundColor  = [UIColor benFamousGreen];
-    self.buttonSend.hidden = true;
+    self.buttonSend.hidden = false;
     [self.view addSubview:self.buttonSend];
 
     self.tableView.sectionIndexColor = [UIColor lightGrayColor];
@@ -137,15 +144,12 @@
     [self.tableView setRowHeight:55];
     _searchCloseButton.hidden = YES;
 
-    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:ASSETS_NEW_PEOPLE] style:UIBarButtonItemStyleDone target:self action:@selector(actionContacts)];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithTitle:@"Send" style:UIBarButtonItemStyleDone target:self action:@selector(didPressSendButton:)];
     self.navigationItem.rightBarButtonItem = item;
 
     UIView *spacerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 10, 10)];
     [_searchTextField setLeftViewMode:UITextFieldViewModeAlways];
     [_searchTextField setLeftView:spacerView];
-
-#warning FETCHING CONTACTS
-    [self getAllContacts];
 
     self.view.backgroundColor = [UIColor whiteColor];
     self.tableView.backgroundColor = [UIColor whiteColor];
@@ -160,8 +164,6 @@
     [self.navigationItem setBackBarButtonItem: backButton];
 
     self.searchBar.placeholder = @"Search...";
-
-    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
 
     users = [[NSMutableArray alloc] init];
     usersObjectIds = [NSMutableArray new];
@@ -344,7 +346,7 @@
     if (peopleWaiting.length > 2)
     {
         peopleWaiting = [peopleWaiting substringToIndex:peopleWaiting.length - 2];
-        peopleWaiting = [NSString stringWithFormat:@"%@ and I are waiting for you to ben www.benmessenger.com", peopleWaiting];
+        peopleWaiting = [NSString stringWithFormat:@"%@ and I are waiting for you On Snap Ben!!!!!", peopleWaiting];
     }
 
 
@@ -479,6 +481,7 @@
 #warning UNHIDE ALL MESSAGES RELATED TO THIS CHATROOM
                          if (_isTherePicturesToSend)
                          {
+#warning DELETE THIS EVENTUALLY
                              [delegate sendObjectsWithSelectedChatroom:chatroommm andText:stringWithoutUser andComment:0];
                          }
                          else
@@ -550,8 +553,8 @@
     //Save the photos, dismiss the view, open the chatview, slideRight in background, refresh when all is saved and done.x
     if (chatroom)
     {
-        PostNotification(NOTIFICATION_REFRESH_INBOX);
         [self openChatroomWithRoom:chatroom title:text comment:0];
+        PostNotification(NOTIFICATION_REFRESH_INBOX);
     }
     else
     {
@@ -564,7 +567,6 @@
 {
     [ProgressHUD dismiss];
     ChatView *chatView = [[ChatView alloc] initWith:chatroom name:title];
-    chatView.isNewChatroomWithPhotos = YES;
     if (_arrayofSelectedPhoneNumbers.count) chatView.isSendingTextMessage = YES;
     chatView.message = nil;
     PostNotification(NOTIFICATION_REFRESH_INBOX);
@@ -790,19 +792,6 @@
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-    //    cell.selectionStyle = UITableViewCellSelectionStyleNone;
-
-    if (self.buttonSend.isHidden)
-    {
-        self.buttonSend.hidden = NO;
-        self.buttonSend.alpha = 0;
-
-        [UIView animateWithDuration:.3f animations:^{
-            [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
-            self.buttonSend.alpha = 1;
-        }];
-    }
-
     PFUser *selectedUser;
     if (_isSearching && _searchMessages.count)
     {
@@ -852,24 +841,6 @@
 
         NSString *string = [NSString stringWithFormat:@"✚ %lu contacts invited", (unsigned long)_arrayofSelectedPhoneNumbers.count];
 
-        //        if (_arrayOfSelectedUsers.count)
-        //        {
-        //            for (PFUser *user in _arrayOfSelectedUsers)
-        //            {
-        //                if (user != [PFUser currentUser]) {
-        //                [user fetchIfNeededInBackgroundWithBlock:^(PFObject *object, NSError *error) {
-        //                    NSString *string = [object valueForKey:PF_USER_FULLNAME];
-        //                    if (![_arrayofSelectedPhoneNumbers containsObject:string])
-        //                    {
-        //                        string = [string stringByAppendingString:@", "];
-        //                        string = [string stringByAppendingString:[user valueForKey:PF_USER_USERNAME]];
-        //                        string = [string substringToIndex:string.length - 2];
-        //                    }
-        //                }];
-        //            }
-        //            }
-        //        }
-
         labelForContactsIndicator.userInteractionEnabled = NO;
         labelForContactsIndicator.textColor = [UIColor whiteColor];
         labelForContactsIndicator.font = [UIFont boldSystemFontOfSize:16];
@@ -895,7 +866,7 @@
             [self.searchMessages addObject:user];
         }
     }
-    [_tableView reloadData];
+    [self.tableView reloadData];
 }
 
 - (IBAction)textFieldDidChange:(UITextField *)textField
@@ -907,7 +878,7 @@
         [self searchUsers:[textField.text lowercaseString]];
     } else {
         _isSearching = NO;
-        [_tableView reloadData];
+        [self.tableView reloadData];
     }
 }
 
@@ -925,7 +896,7 @@
     _searchCloseButton.hidden = YES;
     [textField resignFirstResponder];
     textField.text = @"";
-    [_tableView reloadData];
+    [self.tableView reloadData];
 }
 
 - (IBAction)closeSearch:(id)sender
@@ -999,13 +970,13 @@
 
             if([[[UIDevice currentDevice] systemVersion] floatValue]<8.0)
             {
-                UIAlertView* curr1=[[UIAlertView alloc] initWithTitle:@"Contacts not enabled." message:@"Settings -> ben -> Contacts" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+                UIAlertView* curr1=[[UIAlertView alloc] initWithTitle:@"Contacts not enabled." message:@"Settings -> Snap Ben -> Contacts" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
                 curr1.tag = 25;
                 [curr1 show];
             }
             else
             {
-                UIAlertView* curr2=[[UIAlertView alloc] initWithTitle:@"Contacts not enabled." message:@"Settings -> ben -> Contacts" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:@"Settings", nil];
+                UIAlertView* curr2=[[UIAlertView alloc] initWithTitle:@"Contacts not enabled." message:@"Settings -> Snap Ben -> Contacts" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:@"Settings", nil];
                 curr2.tag= 25;
                 [curr2 show];
             }

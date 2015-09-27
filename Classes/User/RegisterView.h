@@ -1,8 +1,5 @@
 
-#import <UIKit/UIKit.h>
-
-#import "UIColor.h"
-
+#import "AppConstant.h"
 
 @interface RegisterView : UITableViewController <UITextFieldDelegate, UIAlertViewDelegate>
 

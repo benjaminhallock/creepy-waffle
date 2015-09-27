@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="8187.4" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8151.3"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="WelcomeView">
@@ -19,12 +18,14 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rka-Wf-v14">
-                    <rect key="frame" x="8" y="493" width="110" height="70"/>
+                    <rect key="frame" x="8" y="509" width="110" height="53"/>
+                    <color key="backgroundColor" white="0.66666666666666663" alpha="0.14999999999999999" colorSpace="calibratedWhite"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="70" id="vGZ-Mf-s2s"/>
+                        <constraint firstAttribute="height" constant="53" id="GRb-jY-tO6"/>
+                        <constraint firstAttribute="width" constant="110" id="LYQ-jJ-0hX"/>
                     </constraints>
-                    <state key="normal" title="REGISTER" image="signupButton">
-                        <color key="titleColor" red="0.31764705879999999" green="0.70588235290000001" blue="0.64705882349999999" alpha="1" colorSpace="calibratedRGB"/>
+                    <state key="normal" title="REGISTER">
+                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <color key="titleShadowColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </state>
                     <userDefinedRuntimeAttributes>
@@ -39,12 +40,13 @@
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7Wf-8f-ELf">
                     <rect key="frame" x="212" y="507" width="100" height="50"/>
+                    <color key="backgroundColor" white="0.66666666666666663" alpha="0.14999999999999999" colorSpace="calibratedWhite"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="100" id="eZi-PH-QXX"/>
-                        <constraint firstAttribute="height" constant="50" id="jNP-uw-LVW"/>
+                        <constraint firstAttribute="width" constant="100" id="caH-zX-Ifo"/>
+                        <constraint firstAttribute="height" constant="50" id="hqy-rg-cXp"/>
                     </constraints>
-                    <state key="normal" title="LOGIN" image="loginButton">
-                        <color key="titleColor" red="0.31764705879999999" green="0.70588235290000001" blue="0.64705882349999999" alpha="1" colorSpace="calibratedRGB"/>
+                    <state key="normal" title="LOGIN">
+                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <color key="titleShadowColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </state>
                     <userDefinedRuntimeAttributes>
@@ -76,22 +78,19 @@
             </subviews>
             <color key="backgroundColor" red="1" green="0.16078431369999999" blue="0.28627450980000002" alpha="1" colorSpace="calibratedRGB"/>
             <constraints>
+                <constraint firstAttribute="bottom" secondItem="7Wf-8f-ELf" secondAttribute="bottom" constant="11" id="69p-OW-f0F"/>
                 <constraint firstAttribute="trailing" secondItem="uOb-Ou-rgh" secondAttribute="trailing" id="Akd-af-KPq"/>
                 <constraint firstItem="uOb-Ou-rgh" firstAttribute="top" secondItem="1" secondAttribute="top" constant="71" id="Cec-Cs-idS"/>
                 <constraint firstItem="uOb-Ou-rgh" firstAttribute="centerX" secondItem="lTU-yd-3Jc" secondAttribute="centerX" id="JIF-W5-iHe"/>
-                <constraint firstItem="7Wf-8f-ELf" firstAttribute="trailing" secondItem="1" secondAttribute="trailingMargin" id="Kxq-no-2Gi"/>
-                <constraint firstItem="7Wf-8f-ELf" firstAttribute="leading" secondItem="Rka-Wf-v14" secondAttribute="trailing" constant="94" id="PZa-II-EMq"/>
-                <constraint firstAttribute="bottom" secondItem="Rka-Wf-v14" secondAttribute="bottom" constant="5" id="QUD-G3-50P"/>
-                <constraint firstAttribute="bottom" secondItem="7Wf-8f-ELf" secondAttribute="bottom" constant="11" id="Ydg-4C-NX5"/>
+                <constraint firstItem="Rka-Wf-v14" firstAttribute="leading" secondItem="1" secondAttribute="leading" constant="8" id="Mpe-Zf-Nfw"/>
+                <constraint firstAttribute="trailing" secondItem="7Wf-8f-ELf" secondAttribute="trailing" constant="8" id="aLW-KH-TJ7"/>
                 <constraint firstItem="lTU-yd-3Jc" firstAttribute="bottom" secondItem="uOb-Ou-rgh" secondAttribute="bottom" id="al7-jc-kRs"/>
-                <constraint firstItem="Rka-Wf-v14" firstAttribute="leading" secondItem="1" secondAttribute="leadingMargin" id="hVk-el-pA6"/>
+                <constraint firstAttribute="bottom" secondItem="Rka-Wf-v14" secondAttribute="bottom" constant="6" id="fwC-ak-u6B"/>
                 <constraint firstItem="uOb-Ou-rgh" firstAttribute="leading" secondItem="1" secondAttribute="leading" id="yAz-J2-ed9"/>
             </constraints>
         </view>
     </objects>
     <resources>
         <image name="AppIconcut" width="512" height="512"/>
-        <image name="loginButton" width="861" height="389"/>
-        <image name="signupButton" width="1034" height="609"/>
     </resources>
 </document>

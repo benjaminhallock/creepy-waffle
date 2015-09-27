@@ -1,6 +1,5 @@
 
-#import <UIKit/UIKit.h>
-#import "MasterScrollView.h"
+#import "AppConstant.h"
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 @interface WelcomeView : UIViewController
 

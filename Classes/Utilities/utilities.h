@@ -1,10 +1,9 @@
 
 
-#import <UIKit/UIKit.h>
 #import "MessagesView.h"
+#import "AppConstant.h"
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------
-void			LoginUser					(MasterScrollView *scrollView);
 void			ShowProfileSettings		    (MessagesView *target);
 void			ShowNewMessage       	    (id target);
 

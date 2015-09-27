@@ -1,9 +1,4 @@
-
-
-#import "AppConstant.h"
 #import "NavigationController.h"
-#import "CustomCameraView.h"
-#import "UIColor.h"
 
 @implementation NavigationController 
 

@@ -1,21 +1,13 @@
-#import <Parse/Parse.h>
 
 #import "ProgressHUD.h"
-
 #import "AppConstant.h"
-
 #import "messages.h"
-
 #import "utilities.h"
 
-#import "AppDelegate.h"
-
 #import "CreateChatroomView2.h"
-
 #import "ChatView.h"
 
 #import <AddressBook/AddressBook.h>
-
 #import <AddressBookUI/AddressBookUI.h>
 
 @interface CreateChatroomView2 ()
@@ -27,29 +19,20 @@
 }
 
 @property (strong, nonatomic) NSMutableArray *usersNot;
-
 @property (strong, nonatomic) IBOutlet JSQMessagesInputToolbar *toolbar;
-
 @property (strong, nonatomic) IBOutlet UIView *viewHeader;
 
 @property (strong, nonatomic) IBOutlet UISearchBar *searchBar;
-
 @property (strong, nonatomic) IBOutlet UITextField *searchTextField;
-
 @property (strong, nonatomic) IBOutlet UIButton *searchCloseButton;
-
 @property NSMutableArray *searchMessagesNot;
 
 @property (strong, nonatomic) NSMutableArray *arrayOfSelectedUsers;
-
 @property UITapGestureRecognizer *tap;
-
 @property NSMutableArray *numbers;
-
 @property UITableViewCell *selectedCell;
 
 @property BOOL isSearching;
-
 @property BOOL didPressSend;
 
 @end
@@ -99,17 +82,18 @@
     self.toolbar.contentView.textView.scrollEnabled = 0;
 
     UIView *spacerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 10, 10)];
-    [_searchTextField setLeftViewMode:UITextFieldViewModeAlways];
-    [_searchTextField setLeftView:spacerView];
+    [self.searchTextField setLeftViewMode:UITextFieldViewModeAlways];
+    [self.searchTextField setLeftView:spacerView];
 
     self.toolbar.contentView.textView.delegate = self;
     self.toolbar.contentView.textView.text = self.textForComment;
 
+    UIBarButtonItem *close = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:ASSETS_CLOSE] style:UIBarButtonItemStyleBordered target:self action:@selector(dismiss)];
+    self.navigationItem.rightBarButtonItem = close;
 
     self.toolbar.contentView.textView.placeHolder = @"Comment...";
     self.toolbar.contentView.textView.inputAccessoryView = [UIView new];
     self.searchBar.placeholder = @"Search...";
-
 
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
     self.toolbar.contentView.leftBarButtonItem = button;
@@ -122,13 +106,27 @@
 
     usersNot = [NSMutableArray new];
     usersObjectIds = [NSMutableArray new];
-    _searchMessagesNot = [NSMutableArray new];
+    self.searchMessagesNot = [NSMutableArray new];
     self.arrayOfSelectedUsers = [NSMutableArray new];
-    [_arrayOfSelectedUsers addObject:[PFUser currentUser]];
+    [self.arrayOfSelectedUsers addObject:[PFUser currentUser]];
 
     [self loadUsers];
 }
 
+-(void)dismiss
+{
+    [self dismissViewControllerAnimated:1 completion:0];
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:1];
+}
+
+-(void)viewDidDisappear:(BOOL)animated
+{
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:1];
+}
 
 - (void) didTap:(UITapGestureRecognizer *)tap
 {
@@ -302,12 +300,11 @@
             cell.textLabel.text = nameOfContact;
             if ([_arrayofSelectedPhoneNumbers containsObject:phoneNumber])
             {
-                UIImage *image = [[UIImage imageNamed:@"email"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+                UIImage *image = [[UIImage imageNamed:@"checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
                 UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-                cell.accessoryView.tintColor = [UIColor benFamousOrange];
-                imageView.tintColor = [UIColor benFamousOrange];
-                
-//                cell.accessoryView = imageView;
+                cell.accessoryView.tintColor = [UIColor benFamousGreen];
+                imageView.tintColor = [UIColor benFamousGreen];
+                cell.accessoryView = imageView;
                 cell.accessoryType = UITableViewCellAccessoryCheckmark;
             }
             else
@@ -388,11 +385,12 @@
                 return;
             }
             [_arrayofSelectedPhoneNumbers addObject:firstNumber];
-            UIImage *image = [[UIImage imageNamed:@"email"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+
+            UIImage *image = [[UIImage imageNamed:@"checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
             UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-            cell.accessoryView.tintColor = [UIColor benFamousOrange];
-            imageView.tintColor = [UIColor benFamousOrange];
-//            cell.accessoryView = imageView;
+            cell.accessoryView.tintColor = [UIColor benFamousGreen];
+            imageView.tintColor = [UIColor benFamousGreen];
+            cell.accessoryView = imageView;
             cell.accessoryType = UITableViewCellAccessoryCheckmark;
         }
         else
@@ -450,10 +448,11 @@
         NSString *phoneNumber = [alertView buttonTitleAtIndex:buttonIndex];
         if (phoneNumber.length && _selectedCell.accessoryType == UITableViewCellAccessoryNone)
         {
-            UIImage *image = [[UIImage imageNamed:@"email"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            UIImage *image = [[UIImage imageNamed:@"checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
             UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-            self.selectedCell.accessoryView.tintColor = [UIColor benFamousOrange];
-            imageView.tintColor = [UIColor benFamousOrange];
+            self.selectedCell.accessoryView.tintColor = [UIColor benFamousGreen];
+            imageView.tintColor = [UIColor benFamousGreen];
+            self.selectedCell.accessoryView = imageView;
             _selectedCell.accessoryType = UITableViewCellAccessoryCheckmark;
             [_arrayofSelectedPhoneNumbers addObject:phoneNumber];
         }

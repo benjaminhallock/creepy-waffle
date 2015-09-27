@@ -1,42 +1,23 @@
-
-#import <Parse/Parse.h>
-
-#import <ParseUI/ParseUI.h>
-
 //#import <ParseCrashReporting/ParseCrashReporting.h>
 
-#import "ProgressHUD.h"
+#import "AppDelegate.h"
 #import "AppConstant.h"
 #import "utilities.h"
-#import "UIColor.h"
 
-#import "AppDelegate.h"
-
-#import "ChatroomUsersView.h"
-#import "CreateChatroomView.h"
 #import "MessagesView.h"
 #import "SettingsViewController.h"
 #import "CustomCameraView.h"
 #import "NavigationController.h"
-#import "WelcomeView.h"
-#import "RegisterView.h"
-#import "LoginView.h"
 #import "ChatView.h"
-
-#import "MasterScrollView.h"
-
-#import "MasterLoginRegisterView.h"
-
-#import <QuartzCore/QuartzCore.h>
 
 #import "JCNotificationCenter.h"
 #import "JCNotificationBannerPresenterSmokeStyle.h"
 #import "JCNotificationBannerPresenterIOS7Style.h"
 #import "JCNotificationBannerPresenter.h"
 
-@implementation AppDelegate 
+@implementation AppDelegate
 
-@synthesize scrollView, vc;
+@synthesize tabBar;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -46,8 +27,8 @@
     //Must come before appidkey, RUN SCRIPT IN BUILD PHASE
 //    [ParseCrashReporting enable];
 
-    [Parse setApplicationId:@"elq3rKjkGscvsbeeb21QP0GkuMfuEe3Zb8f3bvcq"
-                  clientKey:@"9gXCJTaKXPhPHbG52kGHSzqCIkOSthyToynwl8zq"];
+    [Parse setApplicationId:PARSE_APPLICATION_ID
+                  clientKey:PARSE_CLIENT_KEY];
     
     [PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
 
@@ -111,50 +92,43 @@
 	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.backgroundColor = [UIColor benFamousGreen];
 
-    vc = [[UIViewController alloc] init];
-    vc.view.frame = self.window.bounds;
-    scrollView = [[MasterScrollView alloc] init];
-
-    scrollView.frame = self.window.bounds;
-    [vc.view addSubview:scrollView];
-    scrollView.bounces = NO;
-    scrollView.pagingEnabled = 1;
-    scrollView.scrollEnabled = 1;
-    scrollView.directionalLockEnabled = YES;
-    scrollView.showsHorizontalScrollIndicator = 0;
+//    vc = [[UIViewController alloc] init];
+//    vc.view.frame = self.window.bounds;
+//    scrollView = [[MasterScrollView alloc] init];
+//    scrollView.frame = self.window.bounds;
+//    [vc.view addSubview:scrollView];
+//    scrollView.bounces = NO;
+//    scrollView.pagingEnabled = 1;
+//    scrollView.scrollEnabled = 1;
+//    scrollView.directionalLockEnabled = YES;
+//    scrollView.showsHorizontalScrollIndicator = 0;
 
 //    CustomCameraView *camera = [[CustomCameraView alloc] initWithPopUp:NO];
 //    camera.scrollView = scrollView;
 
     MessagesView *messages = [[MessagesView alloc] init];
-    messages.scrollView = scrollView;
-
     SettingsViewController *settings = [SettingsViewController new];
-
     NavigationController *settingsNav = [[NavigationController alloc] initWithRootViewController:settings];
 
-     scrollView.contentSize = CGSizeMake(1 * vc.view.frame.size.width, vc.view.frame.size.height);
+//     scrollView.contentSize = CGSizeMake(1 * vc.view.frame.size.width, vc.view.frame.size.height);
 //    [scrollView setContentOffset:CGPointMake(vc.view.frame.size.width, 0) animated:0];
 
     self.navInbox = [[NavigationController alloc] initWithRootViewController:messages];
 
 //    self.navCamera = [[NavigationController alloc] initWithRootViewController:camera];
 
-    _navCamera.view.frame = CGRectMake(vc.view.frame.size.width, 0, vc.view.frame.size.width, vc.view.frame.size.height);
+    self.navCamera.view.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
 
-    _navInbox.view.frame = CGRectMake(0, 0, vc.view.frame.size.width, vc.view.frame.size.height);
+    self.navInbox.view.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
 
-    [_navCamera didMoveToParentViewController:vc];
-    [_navInbox didMoveToParentViewController:vc];
+//    [scrollView addSubview:_navCamera.view];
+//    [scrollView addSubview:_navInbox.view];
 
-    [scrollView addSubview:_navCamera.view];
-    [scrollView addSubview:_navInbox.view];
-
-    UITabBarController *tabBar = [[UITabBarController alloc] init];
+    tabBar = [[UITabBarController alloc] init];
     tabBar.tabBar.translucent= NO;
     tabBar.tabBar.tintColor = [UIColor benFamousGreen];
-    settingsNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Settings" image:[UIImage imageNamed:ASSETS_NEW_SETTINGS] tag:0];
-    self.navInbox.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Inbox" image:[UIImage imageNamed:@"Inbox"] tag:1];
+    settingsNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Settings" image:[UIImage imageNamed:@"tab_profile"] tag:0];
+    self.navInbox.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Inbox" image:[UIImage imageNamed:@"Inbox2"] tag:1];
     tabBar.viewControllers = [NSArray arrayWithObjects:self.navInbox, settingsNav, nil];
 
 //    self.window.rootViewController = vc;
@@ -178,7 +152,7 @@
                 NSString *name = [object valueForKey:PF_CHATROOMS_NAME];
                 ChatView *chat = [[ChatView alloc] initWith:object name:name];
 #warning SEND TO MESSAGES VIEW (NOT ARCHIVE);
-                [scrollView openView:chat];
+                [self openView:chat];
             }
         }];
     }
@@ -193,9 +167,9 @@
 
 - (void)setCameraBack2
 {
-    _navCamera.view.frame = CGRectMake(0, 0, vc.view.frame.size.width, vc.view.frame.size.height);
-    scrollView.contentSize = CGSizeMake(3 * vc.view.frame.size.width, vc.view.frame.size.height);
-    [scrollView addSubview:_navCamera.view];
+//    _navCamera.view.frame = CGRectMake(0, 0, vc.view.frame.size.width, vc.view.frame.size.height);
+//    scrollView.contentSize = CGSizeMake(3 * vc.view.frame.size.width, vc.view.frame.size.height);
+//    [scrollView addSubview:_navCamera.view];
 }
 
 - (void)didSendMail:(NSNotification *)notification
@@ -210,7 +184,7 @@
         controller.body = string;
         controller.recipients = [NSArray arrayWithArray:people];
         controller.messageComposeDelegate = self;
-       [self.vc presentViewController:controller animated:1 completion:0];
+       [self.tabBar presentViewController:controller animated:1 completion:0];
     }
 }
 
@@ -229,7 +203,7 @@
         default:
             break;
     }
-    [self.vc dismissViewControllerAnimated:1 completion:0];
+    [controller dismissViewControllerAnimated:1 completion:0];
 }
 
 
@@ -255,7 +229,7 @@
 
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
-    if ([_navInbox.viewControllers.lastObject isKindOfClass:[ChatView class]])
+    if ([self.navInbox.viewControllers.lastObject isKindOfClass:[ChatView class]])
     {
         PostNotification(NOTIFICATION_REFRESH_CHATROOM);
     }
@@ -282,7 +256,8 @@
     BOOL didJustOpenFromBackground = NO;
 
     //Tracking Push Notifications open and stuff
-    if (application.applicationState == UIApplicationStateInactive) {
+    if (application.applicationState == UIApplicationStateInactive)
+    {
         didJustOpenFromBackground = YES;
         [PFAnalytics trackAppOpenedWithRemoteNotificationPayload:userInfo];
     }
@@ -312,7 +287,7 @@
         //Irrelevant but acceptable
         else if ([PFUser currentUser])
         {
-        if ([scrollView checkIfCurrentChatIsEqualToRoom:roomId didComeFromBackground:didJustOpenFromBackground])
+        if ([self checkIfCurrentChatIsEqualToRoom:roomId didComeFromBackground:didJustOpenFromBackground])
             {
                 //SAME CHATROOOM
                 PostNotification(NOTIFICATION_REFRESH_CHATROOM);
@@ -324,7 +299,6 @@
             if (application.applicationState == UIApplicationStateActive && !didJustOpenFromBackground)
             {
                 NSString* title = @"New Message!";
-
                 NSUserDefaults *userDefualts = [NSUserDefaults standardUserDefaults];
 
                 if ([userDefualts boolForKey:PF_KEY_SHOULDVIBRATE])
@@ -337,9 +311,6 @@
                 }
 
                 [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterIOS7Style new];
-
-                if (scrollView.contentOffset.x)
-                {
                 NSLog(@"IN APP NOTIFICATION");
 
                 if (![UIApplication sharedApplication].isStatusBarHidden)
@@ -347,19 +318,16 @@
                 [JCNotificationCenter enqueueNotificationWithTitle:title
                                                            message:alertText
                                                         tapHandler:^{
-
                 //Dismiss Modal Views
                 PostNotification(NOTIFICATION_CLICKED_PUSH);
-
-                [scrollView openView:chat];
+                [self openView:chat];
                 }];
-                }
                 }
 
             }
             else
             {
-                [scrollView openView:chat];
+                [self openView:chat];
             }
         }
 
@@ -369,6 +337,57 @@
         }
     }];
     }
+}
+
+- (void)openView:(UIViewController *)view2
+{
+    if ([self.navInbox.viewControllers.lastObject isKindOfClass:[ChatView class]])
+    {
+        //Your in a different chat.
+        [self.navInbox popViewControllerAnimated:0];
+    }
+    else
+    {
+        //New Conversation Perhaps.
+        [self.navInbox popToRootViewControllerAnimated:0];
+    }
+
+    /// IF CUSTOM CHAT ROOM IS SAME AS ROOM BEFORE, POP THE STACK ONCE.
+    MessagesView *messagesView = self.navInbox.viewControllers.firstObject;
+    messagesView.hidesBottomBarWhenPushed = YES;
+    [self.navInbox pushViewController:view2 animated:0];
+    messagesView.hidesBottomBarWhenPushed = NO;
+
+//    [self setContentOffset:CGPointMake([UIScreen mainScreen].bounds.size.width, 0) animated:0];
+}
+
+
+- (BOOL) checkIfCurrentChatIsEqualToRoom:(NSString *)roomId didComeFromBackground:(BOOL)isBack
+{
+    //If there is a popup camera.
+    if (self.navInbox.presentedViewController)
+    {
+        return NO;
+    }
+
+    if ([self.navInbox.viewControllers.lastObject isKindOfClass:[ChatView class]])
+    {
+        ChatView *chatView = self.navInbox.viewControllers.lastObject;
+        if ([chatView.room.objectId isEqualToString: roomId])
+        {
+            [chatView refresh];
+            return YES;
+        }
+        else
+        {
+            //POP CURRENT ROOM IF NOT PUSH ROOM.//ACTUALLY NO, ONLY IF COMING FROM BACKGROUND.
+            if (isBack) {
+                [self.navInbox popToRootViewControllerAnimated:0];
+            }
+        }
+    }
+
+    return NO;
 }
 
 @end

@@ -1,19 +1,7 @@
 
 #import "utilities.h"
-#import "WelcomeView.h"
-#import "RegisterView.h"
-
-#import "LoginView.h"
 #import "NavigationController.h"
-#import "SettingsViewController.h"
 #import "CreateChatroomView.h"
-#import <Parse/Parse.h>
-#import "UIColor.h"
-
-void LoginUser(MasterScrollView *scrollView)
-{
-
-}
 
 void ShowNewMessage(NavigationController *target)
 {

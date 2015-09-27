@@ -1,12 +1,9 @@
 
-
 #import "MasterLoginRegisterView.h"
 #import "MasterScrollView.h"
 #import "RegisterView.h"
 #import "LoginView.h"
 #import "WelcomeView.h"
-#import "AppConstant.h"
-
 #import "IQKeyboardManager.h"
 
 @interface MasterLoginRegisterView ()
@@ -17,6 +14,7 @@
 @end
 
 @implementation MasterLoginRegisterView
+
 @synthesize navWelcome, navRegister, navLogin, scrollView;
 
 - (void)viewDidLoad
@@ -32,7 +30,7 @@
     scrollView.pagingEnabled = 1;
     scrollView.directionalLockEnabled = YES;
     scrollView.showsHorizontalScrollIndicator = 0;
-    scrollView.scrollEnabled = 1;
+    scrollView.scrollEnabled = true;
 
     WelcomeView *welcome = [WelcomeView new];
     welcome.scrollView = scrollView;

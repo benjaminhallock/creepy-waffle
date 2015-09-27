@@ -246,6 +246,8 @@ const KLCPopupLayout KLCPopupLayoutCenter = { KLCPopupHorizontalLayoutCenter, KL
     _isShowing = NO;
     _isBeingDismissed = YES;
 
+    [self.delegate didDismiss];
+
       // cancel previous dismiss requests (i.e. the dismiss after duration call).
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(dismiss) object:nil];
 

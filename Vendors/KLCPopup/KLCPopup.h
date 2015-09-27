@@ -100,9 +100,13 @@ extern KLCPopupLayout KLCPopupLayoutMake(KLCPopupHorizontalLayout horizontal, KL
 
 extern const KLCPopupLayout KLCPopupLayoutCenter;
 
-
+@protocol KLCPopupDelegate <NSObject>
+-(void)didDismiss;
+@end
 
 @interface KLCPopup : UIView
+
+@property(nonatomic,assign)id delegate;
 
 // This is the view that you want to appear in Popup.
 // - Must provide contentView before or in willStartShowing.

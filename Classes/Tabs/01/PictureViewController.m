@@ -31,6 +31,14 @@
     return self;
 }
 
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+
+    [moviePlayer stop];
+    moviePlayer = nil;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -52,24 +60,26 @@
     self.textField.frame = CGRectMake(0, 500, self.view.frame.size.width, 40);
     self.textField.hidden = 1;
 
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
-    [self.view addGestureRecognizer:tap];
+//    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
+//    [self.view addGestureRecognizer:tap];
 
-    UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPan:)];
-    [self.view addGestureRecognizer:pan];
+//    UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPan:)];
+//    [self.view addGestureRecognizer:pan];
 }
 
 -(void)loadMovie
 {
     moviePlayer = [[MPMoviePlayerController alloc] initWithContentURL:self.videoURL];
     moviePlayer.view.frame = CGRectMake(30, 30, self.view.frame.size.width - 30, self.view.frame.size.height - 30);
+//    moviePlayer.view.frame = self.view.frame;
+    moviePlayer.view.transform = CGAffineTransformMakeScale(1.4f, 1.4f);
     moviePlayer.shouldAutoplay = true;
-    moviePlayer.view.layer.shouldRasterize = 1;
-    moviePlayer.view.layer.rasterizationScale = [UIScreen mainScreen].scale;
+//    moviePlayer.view.layer.shouldRasterize = 1;
+//    moviePlayer.view.layer.rasterizationScale = [UIScreen mainScreen].scale;
     moviePlayer.view.layer.masksToBounds = YES;
     moviePlayer.view.contentMode = UIViewContentModeScaleToFill;
-    moviePlayer.view.layer.cornerRadius = moviePlayer.view.frame.size.width/10;
-    moviePlayer.view.layer.borderColor = [UIColor whiteColor].CGColor;
+//    moviePlayer.view.layer.cornerRadius = moviePlayer.view.frame.size.width/10;
+//    moviePlayer.view.layer.borderColor = [UIColor whiteColor].CGColor;
     moviePlayer.view.layer.borderWidth = 1;
     moviePlayer.view.layer.cornerRadius = 10;
     moviePlayer.view.userInteractionEnabled = 1;
