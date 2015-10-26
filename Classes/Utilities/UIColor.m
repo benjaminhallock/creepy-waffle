@@ -111,15 +111,6 @@
     return [UIColor colorFromHexString:@"#dc8d8d"];
 }
 
-
-
-//2A: b17181
-//2B: adc35e
-//2C: 83bec4
-//2D: d39c75
-//2E: 6991b6
-
-
 +(UIColor *)ben2A {
      //OLD adc35e
     return [UIColor colorFromHexString:@"#a7c138"];
@@ -141,12 +132,6 @@
     return [UIColor colorFromHexString:@"#6991b6"];
 }
 
-//3A: b77069
-//3B: 82b154
-//3C: 77acc8
-//3D: c1b16f
-//3E: 4fb687
-
 +(UIColor *)ben3A {
     return [UIColor colorFromHexString:@"#b77069"];
 }
@@ -166,13 +151,6 @@
 +(UIColor *)ben3E {
     return [UIColor colorFromHexString:@"#4fb687"];
 }
-
-
-//4A: c47878
-//4B: 76a2a7
-//4C: bccd77
-//4D: b77974
-//4E: 5a92af
 
 +(UIColor *)ben4A {
     return [UIColor colorFromHexString:@"#c47878"];

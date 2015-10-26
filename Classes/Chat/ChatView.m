@@ -445,6 +445,7 @@
 {
     if (self.isLoadingPopup == NO)
     {
+        [self.view endEditing:1];
         self.isLoadingPopup = YES;
         self.actionSheetHolder = [[ActionSheet alloc] initWithRoom:self.room AndMessage:self.message];
         [self.actionSheetHolder showActionSheetWithDelegate:self];
@@ -520,7 +521,7 @@
         [query includeKey:PF_CHAT_USER];
         [query includeKey:PF_CHAT_SETID];
         [query orderByDescending:PF_PICTURES_UPDATEDACTION];
-        [query setLimit:200 * _isLoadingEarlierCount];
+        [query setLimit:200 * self.isLoadingEarlierCount];
 
 //      Warning: Will go through query twice. Using self.editing to prevent confusion.
         [query setCachePolicy:kPFCachePolicyCacheThenNetwork];
@@ -679,7 +680,7 @@
                  }
                  else if (!newCount)
                  {
-                     [self performSelector:@selector(openTextView) withObject:self afterDelay:.5f];
+//                     [self performSelector:@selector(openTextView) withObject:self afterDelay:.5f];
                  }
                  else if (newCount > 200)
                  {

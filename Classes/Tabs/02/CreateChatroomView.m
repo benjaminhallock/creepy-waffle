@@ -1,13 +1,11 @@
 
 #import "ProgressHUD.h"
-#import "AppConstant.h"
 #import "messages.h"
 #import "utilities.h"
 
 #import "CreateChatroomView.h"
 #import "CreateChatroomView2.h"
 #import "ChatView.h"
-#import "NavigationController.h"
 
 //#import <AddressBook/AddressBook.h>
 #import <AddressBookUI/AddressBookUI.h>
@@ -32,8 +30,6 @@
 
 @property (strong, nonatomic) NSMutableArray *arrayOfSelectedUsers;
 @property (strong, nonatomic) NSMutableArray *arrayofSelectedPhoneNumbers;
-
-@property UITapGestureRecognizer *tap;
 @property NSMutableArray *numbers;
 @property UITableViewCell *selectedCell;
 @property BOOL isSearching;
@@ -44,7 +40,7 @@
 
 @implementation CreateChatroomView
 
-@synthesize delegate, arrayOfNamesAndNumbers, numbers, viewHeader, searchBar, tap;
+@synthesize delegate, arrayOfNamesAndNumbers, numbers, viewHeader, searchBar;
 
 //You just hit send in the contacts view.
 - (void)sendBackArrayOfPhoneNumbers:(NSMutableArray *)array andDidPressSend:(BOOL)send andText:(NSString *)text
@@ -57,6 +53,7 @@
 
 - (IBAction)didPressSendButton:(UIButton *)sender
 {
+    [ProgressHUD show:@"" Interaction:false];
     self.buttonSend.userInteractionEnabled = false;
     [self sendWithTextMessage];
     self.buttonSend.userInteractionEnabled = true;
@@ -171,17 +168,7 @@
     self.arrayOfSelectedUsers = [NSMutableArray new];
     _arrayofSelectedPhoneNumbers = [NSMutableArray new];
     [_arrayOfSelectedUsers addObject:[PFUser currentUser]];
-
-    tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(didTap:)];
-    tap.delegate = self;
 }
-
-
-- (void) didTap:(UITapGestureRecognizer *)tap
-{
-
-}
-
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
@@ -195,7 +182,6 @@
         [textView resignFirstResponder];
         [textView deleteBackward];
         [textView scrollsToTop];
-        [self.view removeGestureRecognizer:tap];
     } else {
         [self searchUsers:textView.text];
     }
@@ -204,12 +190,10 @@
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
     [[UIApplication sharedApplication] setStatusBarHidden:0 withAnimation:UIStatusBarAnimationSlide];
-    [self.view removeGestureRecognizer:tap];
 }
 
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView
 {
-    [self.view addGestureRecognizer:tap];
     return YES;
 }
 
@@ -246,7 +230,9 @@
                 for (NSString *phoneNumber in arrayOfNumbersCopy) {
                     [self saveNewUserWithPhoneNumber:phoneNumber];
                 }
-            } else {
+            } else
+            {
+                [ProgressHUD showError:NETWORK_ERROR];
                 NSLog(@"findUserswith# %@", error.userInfo);
             }
         }];
@@ -259,9 +245,8 @@
 
 - (void) saveNewUserWithPhoneNumber:(NSString *)phoneNumber
 {
-    //    NSURL *url = [NSURL URLWithString: [NSString stringWithFormat:@"http://%@:%@@https://api.parse.com/1/users", @"", @""]];
+#warning IS IT BAD THAT THE PASSWORD IS THE USERNAME, AND ANYONE COULD SEND A POST REQUEST?
     NSURL *url = [NSURL URLWithString:@"https://api.parse.com/1/users"];
-#warning WHAT DOES THIS STRING LOOK LIKE.
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setURL:url];
     [request setHTTPMethod:@"POST"];
@@ -272,7 +257,6 @@
     NSDictionary *dict = @{@"username":phoneNumber,@"password":phoneNumber, PF_USER_ISVERIFIED: @NO};
     NSError *error;
     NSData *postBody = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:&error];
-
     NSLog(@"error: %@",error);
     [request setHTTPBody:postBody];
 
@@ -348,7 +332,6 @@
         peopleWaiting = [peopleWaiting substringToIndex:peopleWaiting.length - 2];
         peopleWaiting = [NSString stringWithFormat:@"%@ and I are waiting for you On Snap Ben!!!!!", peopleWaiting];
     }
-
 
     if (_isTherePicturesToSend)
     {
@@ -434,11 +417,13 @@
 
                     //NEXT
                     [self findChatroomAndSend:chatroom andUserIds:arrayOfUserIds andString:stringWithoutUser];
+
                     NSLog(@"COUNT DOWN DONE");
                 }
         }
         else
         {
+            [ProgressHUD showError:NETWORK_ERROR];
             NSLog(@"Error fetching users: %@", error.userInfo);
         }
         }];
@@ -553,6 +538,7 @@
     //Save the photos, dismiss the view, open the chatview, slideRight in background, refresh when all is saved and done.x
     if (chatroom)
     {
+        [ProgressHUD dismiss];
         [self openChatroomWithRoom:chatroom title:text comment:0];
         PostNotification(NOTIFICATION_REFRESH_INBOX);
     }
@@ -911,6 +897,7 @@
         NSString *phoneNumber = [alertView buttonTitleAtIndex:buttonIndex];
         if (phoneNumber.length && _selectedCell.accessoryType == UITableViewCellAccessoryNone)
         {
+//            dehumanizing about this one size fits all generation
             _selectedCell.accessoryView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"email"]];
             _selectedCell.accessoryType = UITableViewCellAccessoryCheckmark;
             [_arrayofSelectedPhoneNumbers addObject:phoneNumber];
@@ -944,7 +931,6 @@
     __block BOOL accessGranted = NO;
 
     if (ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusAuthorized) {
-
         accessGranted = YES;
 
     } else if (ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusNotDetermined) {
@@ -966,9 +952,9 @@
     if (!accessGranted) {
         NSLog(@"Cannot fetch Contacts :( ");
 
-        dispatch_async(dispatch_get_main_queue(), ^{
-
-            if([[[UIDevice currentDevice] systemVersion] floatValue]<8.0)
+        dispatch_async(dispatch_get_main_queue(), ^
+        {
+            if([[[UIDevice currentDevice] systemVersion] floatValue] < 8.0)
             {
                 UIAlertView* curr1=[[UIAlertView alloc] initWithTitle:@"Contacts not enabled." message:@"Settings -> Snap Ben -> Contacts" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
                 curr1.tag = 25;
@@ -1030,7 +1016,7 @@
 
                 if (phoneNumber.length == 10)
                 {
-                    phoneNumber = [AppConstant formatPhoneNumberForCountry:phoneNumber];
+                    phoneNumber = formatPhoneNumberForCountry(phoneNumber);
                 }
 
                 if (![phoneNumber hasPrefix:@"+"])

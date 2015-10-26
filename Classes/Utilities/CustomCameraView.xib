@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9059" systemVersion="15A284" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9049"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CustomCameraView">
@@ -21,9 +21,12 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lfp-60-0qM" userLabel="View - video preview"/>
+                <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lfp-60-0qM" userLabel="View - video preview">
+                    <animations/>
+                </view>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5s0-S6-0LZ" userLabel="CANCEL">
                     <rect key="frame" x="262" y="12" width="50" height="50"/>
+                    <animations/>
                     <constraints>
                         <constraint firstAttribute="width" constant="50" id="OE2-Qe-w15"/>
                         <constraint firstAttribute="height" constant="50" id="qf6-ub-vEu"/>
@@ -38,17 +41,18 @@
                 </button>
                 <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oqZ-YL-qcI" userLabel="Button - Cameraroll">
                     <rect key="frame" x="31" y="396" width="60" height="60"/>
+                    <animations/>
                     <color key="backgroundColor" red="0.96470588235294119" green="0.5490196078431373" blue="0.27058823529411763" alpha="1" colorSpace="calibratedRGB"/>
                     <state key="normal">
                         <color key="titleShadowColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
                     <connections>
-                        <action selector="buttonRelease:" destination="-1" eventType="touchDown" id="6w1-Jk-hwS"/>
                         <action selector="onAlbumPressed:" destination="-1" eventType="touchUpInside" id="cJ8-e0-Rl1"/>
                     </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4q3-tp-91X" userLabel="FLASH ">
                     <rect key="frame" x="8" y="17" width="40" height="40"/>
+                    <animations/>
                     <constraints>
                         <constraint firstAttribute="width" constant="40" id="5XY-0E-06A"/>
                         <constraint firstAttribute="height" constant="40" id="U9s-zC-98N"/>
@@ -60,11 +64,13 @@
                         <color key="titleShadowColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
                     <connections>
+                        <action selector="buttonRelease:" destination="-1" eventType="touchDown" id="ndm-LP-wjs"/>
                         <action selector="onFlashPressed:" destination="-1" eventType="touchUpInside" id="MUA-SV-U3J"/>
                     </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8Dy-X3-0DV">
                     <rect key="frame" x="119" y="486" width="82" height="82"/>
+                    <animations/>
                     <constraints>
                         <constraint firstAttribute="height" constant="82" id="4vu-gt-Y4C"/>
                         <constraint firstAttribute="width" constant="82" id="WHW-6z-wMD"/>
@@ -73,6 +79,7 @@
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qFi-2c-ftl" userLabel="SWITCH CAMERA">
                     <rect key="frame" x="140" y="17" width="40" height="40"/>
+                    <animations/>
                     <constraints>
                         <constraint firstAttribute="width" constant="40" id="2b4-x1-ycp"/>
                         <constraint firstAttribute="height" constant="40" id="XC1-Hv-fgj"/>
@@ -87,6 +94,7 @@
                     </connections>
                 </button>
             </subviews>
+            <animations/>
             <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
             <constraints>
                 <constraint firstItem="5s0-S6-0LZ" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="12" id="4hZ-Hd-umj"/>

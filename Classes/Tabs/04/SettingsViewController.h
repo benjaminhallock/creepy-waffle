@@ -1,5 +1,5 @@
 
 
-@interface SettingsViewController : UITableViewController <UIActionSheetDelegate, UITextFieldDelegate>
+@interface SettingsViewController : UITableViewController
 
 @end

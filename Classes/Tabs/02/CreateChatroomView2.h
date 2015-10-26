@@ -1,8 +1,6 @@
 
 
 #import <UIKit/UIKit.h>
-#import "JSQMessagesInputToolbar.h"
-#import <Parse/Parse.h>
 
 @protocol CreateChatroom2Delegate <NSObject>
 
@@ -10,7 +8,7 @@
 
 @end
 
-@interface CreateChatroomView2 : UIViewController <UISearchBarDelegate, UITextFieldDelegate, JSQMessagesInputToolbarDelegate, UITableViewDataSource, UITableViewDelegate, UIAlertViewDelegate>
+@interface CreateChatroomView2 : UIViewController <UISearchBarDelegate, UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate, UIAlertViewDelegate>
 
 @property (nonatomic,assign) id delegate;
 @property (strong, nonatomic) IBOutlet UITableView *tableView;

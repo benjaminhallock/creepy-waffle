@@ -105,17 +105,17 @@
 
     if (newString.length > 10 && ![newString hasPrefix:@"+"])
     {
-//                Add the plus and get on with it.
+//      Add the plus and get on with it.
         return [@"+" stringByAppendingString:newString];
     }
     else if (![newString hasPrefix:@"+"])
     {
+//      Assuming you forget your country code
         newString2 = [NSString stringWithFormat:@"+%@%@",callingCode,newString];
     }
 
     NSString *substring = [newString2 substringFromIndex:1];
     NSString *removeExtraPlusSigns = [substring stringByReplacingOccurrencesOfString:@"+" withString:@""];
-
     NSString *finalPhone = [NSString stringWithFormat:@"+%@",removeExtraPlusSigns];
     
     return finalPhone;

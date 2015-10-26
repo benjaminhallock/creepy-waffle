@@ -63,14 +63,9 @@
 
 -(IBAction)didSlideRight:(id)sender
 {
-    if (!_isTextFieldUp)
-    {
+
+    [self.view endEditing:1];
     PostNotification(NOTIFICATION_SLIDE_MIDDLE_WELCOME);
-    }
-    else
-    {
-        [self.view endEditing:1];
-    }
 }
 
 - (void)viewDidLoad
@@ -127,7 +122,7 @@
 
 	if ((nameFirst.length != 0) && (phoneNumber.length != 0) && (nameLast.length != 0))
     {
-        phoneNumber  = [AppConstant formatPhoneNumberForCountry:phoneNumber];
+        phoneNumber  = formatPhoneNumberForCountry(phoneNumber);
 
 		[ProgressHUD show:@"Searching for users..." Interaction:1];
 

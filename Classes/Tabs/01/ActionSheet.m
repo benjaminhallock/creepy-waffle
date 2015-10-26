@@ -522,7 +522,7 @@
 
                 if (phoneNumber.length == 10)
                 {
-                    phoneNumber = [AppConstant formatPhoneNumberForCountry:phoneNumber];
+                    phoneNumber = formatPhoneNumberForCountry(phoneNumber);
                 }
 
                 if (![phoneNumber hasPrefix:@"+"])

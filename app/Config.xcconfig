@@ -1,0 +1,10 @@
+//
+//  Config.xcconfig
+//  Snap Ben
+//
+//  Created by benjaminhallock@gmail.com on 9/24/15.
+//  Copyright © 2015 KZ. All rights reserved.
+//
+
+#include "Keys.xcconfig"
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) PARSE_APPLICATION_ID=@\"$(PARSE_APPLICATION_ID)\" PARSE_CLIENT_KEY=@\"$(PARSE_CLIENT_KEY)\" FACEBOOK_APPLICATION_ID=@\"$(FACEBOOK_APPLICATION_ID)\"

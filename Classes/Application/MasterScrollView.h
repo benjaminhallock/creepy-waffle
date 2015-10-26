@@ -1,7 +1,6 @@
 
 
 #import "AppConstant.h"
-#import "NavigationController.h"
 
 @interface MasterScrollView : UIScrollView <UIScrollViewDelegate, UIGestureRecognizerDelegate>
 

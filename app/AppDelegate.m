@@ -6,8 +6,6 @@
 
 #import "MessagesView.h"
 #import "SettingsViewController.h"
-#import "CustomCameraView.h"
-#import "NavigationController.h"
 #import "ChatView.h"
 
 #import "JCNotificationCenter.h"
@@ -26,6 +24,8 @@
 #warning ERROR WHEN LINKING CRASH REPORTING
     //Must come before appidkey, RUN SCRIPT IN BUILD PHASE
 //    [ParseCrashReporting enable];
+
+    [PFImageView class];
 
     [Parse setApplicationId:PARSE_APPLICATION_ID
                   clientKey:PARSE_CLIENT_KEY];
@@ -53,8 +53,6 @@
 		[application registerUserNotificationSettings:settings];
 		[application registerForRemoteNotifications];
 	}
-
-    [PFImageView class];
 
 /*
 #warning REMOVE THIS WHEN SHIPPING, TESTING CRASH

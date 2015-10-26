@@ -43,11 +43,8 @@
 
 - (IBAction)didSlideLeft:(id)sender
 {
-    if (!_isTextFieldUp) {
+    [self.view endEditing:1];
     PostNotification(NOTIFICATION_SLIDE_MIDDLE_WELCOME);
-    } else {
-        [self.view endEditing:1];
-    }
 }
 
 - (void) sendText:(PFUser *)userFound
@@ -136,7 +133,7 @@
 
     if (![phoneNumber isEqualToString:@"0000000000"])
     {
-    phoneNumber = [AppConstant formatPhoneNumberForCountry:phoneNumber];
+    phoneNumber = formatPhoneNumberForCountry(phoneNumber);
     }
     else
     {
@@ -167,10 +164,10 @@
 			if (user && !error)
 			{
                 NSString *fullName = [user valueForKey:PF_USER_FULLNAME];
-
+//      Checking to see if this person has logged in before, because if they already have an account they need to register first.
                 if (!fullName.length)
                 {
-                    [ProgressHUD showError:@"Account Not Register"];
+                    [ProgressHUD showError:@"Account Not Registered"];
 
                     [PFUser logOut];
 

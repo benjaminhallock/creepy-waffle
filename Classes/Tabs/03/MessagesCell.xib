@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="8191" systemVersion="15A284" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
@@ -17,6 +17,7 @@
                 <subviews>
                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="No Name Available" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uxG-h3-jPt" userLabel="NAMES">
                         <rect key="frame" x="40" y="24" width="254" height="23"/>
+                        <animations/>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                         <color key="textColor" red="0.42745098040000001" green="0.7843137255" blue="0.75294117650000003" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
@@ -24,6 +25,7 @@
                     </label>
                     <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="0 min ago" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aCl-zV-J5y">
                         <rect key="frame" x="60" y="67" width="89" height="21"/>
+                        <animations/>
                         <constraints>
                             <constraint firstAttribute="width" constant="89" id="Ueb-n0-aCy"/>
                             <constraint firstAttribute="height" constant="21" id="h7F-Yl-lj2"/>
@@ -34,6 +36,7 @@
                     </label>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LfM-WZ-wGC" userLabel="BIG PICTURE" customClass="PFImageView">
                         <rect key="frame" x="302" y="9" width="75" height="74"/>
+                        <animations/>
                         <color key="backgroundColor" red="1" green="0.16078431369999999" blue="0.28627450980000002" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="75" id="Fba-Fc-bqI"/>
@@ -41,6 +44,7 @@
                     </imageView>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="45a-f0-KQe" userLabel="IMAGE NEW">
                         <rect key="frame" x="0.0" y="24" width="40" height="40"/>
+                        <animations/>
                         <constraints>
                             <constraint firstAttribute="height" constant="40" id="6dj-bs-nqs"/>
                             <constraint firstAttribute="width" constant="40" id="EsP-O9-Ouo"/>
@@ -49,6 +53,7 @@
                     </imageView>
                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="No Last Message" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ois-e3-M4I">
                         <rect key="frame" x="40" y="45" width="254" height="25"/>
+                        <animations/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                         <nil key="highlightedColor"/>
@@ -56,6 +61,7 @@
                     </label>
                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="- -" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" highlighted="YES" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="28" translatesAutoresizingMaskIntoConstraints="NO" id="qvr-X7-Kca" userLabel="INITIALS">
                         <rect key="frame" x="291" y="3" width="28" height="28"/>
+                        <animations/>
                         <color key="backgroundColor" red="0.42745098040000001" green="0.7843137255" blue="0.75294117650000003" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="28" id="8kA-xf-gCr"/>
@@ -69,14 +75,17 @@
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="99" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4G3-f6-Zsa">
                         <rect key="frame" x="229" y="66" width="32" height="22"/>
+                        <animations/>
                         <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="14"/>
                         <color key="textColor" red="0.42745098040000001" green="0.7843137255" blue="0.75294117650000003" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="contacts icon" translatesAutoresizingMaskIntoConstraints="NO" id="l2a-ee-UTd">
                         <rect key="frame" x="264" y="63" width="25" height="28"/>
+                        <animations/>
                     </imageView>
                 </subviews>
+                <animations/>
                 <constraints>
                     <constraint firstItem="LfM-WZ-wGC" firstAttribute="leading" secondItem="uxG-h3-jPt" secondAttribute="trailing" constant="8" symbolic="YES" id="7Vh-UM-jK2"/>
                     <constraint firstItem="Ois-e3-M4I" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" constant="36" id="AUN-XV-tPD"/>
@@ -107,6 +116,7 @@
                     <constraint firstItem="LfM-WZ-wGC" firstAttribute="leading" secondItem="Ois-e3-M4I" secondAttribute="trailing" constant="8" symbolic="YES" id="zX6-iM-F7Y"/>
                 </constraints>
             </tableViewCellContentView>
+            <animations/>
             <connections>
                 <outlet property="contactsPeople" destination="l2a-ee-UTd" id="2c8-gl-VN8"/>
                 <outlet property="imageNew" destination="45a-f0-KQe" id="5yl-9s-o4o"/>

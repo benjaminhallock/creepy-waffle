@@ -22,14 +22,20 @@
 {
     [super viewDidAppear:1];
 
-    [UIView animateWithDuration:0.3f delay:1.0 usingSpringWithDamping:5.0f initialSpringVelocity:1.0f options:UIViewAnimationOptionCurveEaseInOut animations:^{
-        self.imageView.frame = CGRectMake(0, 144, 330, 330);
-        self.view.backgroundColor = [UIColor benFamousOrange];
-        self.view.backgroundColor = [UIColor benFamousGreen];
-    } completion:0];
+//    [UIView animateWithDuration:0.6f delay:1.0 usingSpringWithDamping:1.0f initialSpringVelocity:-5.0f options:0 animations:^{
 
-    [UIView animateWithDuration:0.3f delay:1.5 usingSpringWithDamping:5.0f initialSpringVelocity:10.0f options:UIViewAnimationOptionCurveEaseInOut animations:^{
-        self.label.frame = CGRectMake(0, 110, 100, 40);
+    [UIView animateWithDuration:1.0f delay:1.0
+         usingSpringWithDamping:0.2f initialSpringVelocity:0
+                        options:0 animations:^{
+                            self.imageView.frame = CGRectMake(0, 144, 330, 330);
+                            self.view.backgroundColor = [UIColor benFamousOrange];
+                            self.view.backgroundColor = [UIColor benFamousGreen];
+                        } completion:nil];
+
+    [UIView animateWithDuration:0.4f delay:1.5
+         usingSpringWithDamping:0.2f initialSpringVelocity:0
+                        options:0 animations:^{
+                            self.label.frame = CGRectMake(0, 110, 100, 40);
     } completion:0];
 }
 

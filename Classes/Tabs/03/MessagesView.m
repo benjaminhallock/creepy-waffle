@@ -8,7 +8,6 @@
 #import "SettingsViewController.h"
 #import "MasterLoginRegisterView.h"
 #import "ChatView.h"
-#import "NavigationController.h"
 #import "CreateChatroomView.h"
 
 @interface MessagesView ()
@@ -36,9 +35,6 @@
 @property IBOutlet UIButton *searchCloseButton;
 @property NSMutableArray *searchMessages;
 @property BOOL isSearching;
-
-@property (strong, nonatomic) IBOutlet UIButton *composeButton;
-@property (strong, nonatomic) IBOutlet UIButton *albumButton;
 
 @property BOOL isRefreshIconsOverlap;
 @property BOOL isLoadingChatView;
@@ -119,9 +115,9 @@
     }
 }
 
-- (void)didTap:(UITapGestureRecognizer *)tapppppp
+- (void)didTap:(UITapGestureRecognizer *)tapped
 {
-    CGPoint point = [tapppppp locationInView:self.tableView];
+    CGPoint point = [tapped locationInView:self.tableView];
 
     if (point.x > 50 && self.tap) {
         [self.tableView setEditing:0 animated:1];
@@ -164,7 +160,7 @@
     self.longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
     [self.view addGestureRecognizer:self.longPress];
 
-    _searchCloseButton.hidden = YES;
+    self.searchCloseButton.hidden = YES;
     [self clearAll];
     [self setupRefreshControl];
     [self setUpNavBar];
@@ -173,7 +169,7 @@
     [_searchTextField setLeftViewMode:UITextFieldViewModeAlways];
     [_searchTextField setLeftView:spacerView];
 
-    [self.tableView registerNib:[UINib nibWithNibName:@"MessagesCell" bundle:0] forCellReuseIdentifier:@"MessagesCell"];
+    [self.tableView registerNib:[UINib nibWithNibName:@"MessagesCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:@"MessagesCell"];
 
     self.tableView.backgroundColor = [UIColor whiteColor];
 
@@ -866,144 +862,6 @@
     [self.tableView setEditing:0 animated:1];
 }
 
-- (void)animateRefreshView
-{
-    NSArray *colorArray = [UIColor arrayOfColorsCore];
-    static int colorIndex = 0;
-
-    // Flag that we are animating
-    self.isRefreshAnimating = YES;
-
-    [UIView animateWithDuration:0.3
-                          delay:0
-                        options:UIViewAnimationOptionCurveLinear
-                     animations:^{
-                         // Rotate the spinner by M_PI_2 = PI/2 = 90 degrees
-                         [self.compassSpinner setTransform:CGAffineTransformRotate(self.compassSpinner.transform, M_PI * 2)];
-
-                         // Change the background color
-                         self.refreshColorView.backgroundColor = [colorArray objectAtIndex:colorIndex];
-                         colorIndex = (colorIndex + 1) % colorArray.count;
-                     }
-                     completion:^(BOOL finished) {
-                         // If still refreshing, keep spinning, else reset
-                         if (self.refreshControl.isRefreshing) {
-                             [self animateRefreshView];
-                         }else{
-                             [self resetAnimation];
-                         }
-                     }];
-}
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-#warning DISABLE
-    return;
-    // Get the current size of the refresh controller
-    CGRect refreshBounds = self.refreshControl.bounds;
-
-    // Distance the table has been pulled >= 0
-    CGFloat pullDistance = MAX(0.0, -self.refreshControl.frame.origin.y);
-
-    // Half the width of the table
-    CGFloat midX = self.tableView.frame.size.width / 2.0;
-
-    dispatch_async(dispatch_get_main_queue(), ^
-                   {
-                       if (pullDistance > 60.0f && !_isRefreshingUp)
-                       {
-                           _isRefreshingUp = YES;
-
-                           [UIView animateWithDuration:.3f animations:^{
-                               self.tableView.backgroundColor = [UIColor benFamousOrange];
-                           }];
-                       }
-                       else if (pullDistance < 60.0f && !_isRefreshingDown)
-                       {
-                           _isRefreshingDown = YES;
-                           [UIView animateWithDuration:.2f animations:^{
-                               self.tableView.backgroundColor = [UIColor whiteColor];
-                           }];
-                       }
-                   });
-
-    if (pullDistance  < 5 && _isRefreshingUp == YES && _isRefreshingDown == YES)
-    {
-        _isRefreshingDown = NO;
-        _isRefreshingUp = NO;
-    }
-
-    // Calculate the width and height of our graphics
-    CGFloat compassHeight = self.compassBackground.bounds.size.height;
-    CGFloat compassHeightHalf = compassHeight / 2.0;
-
-    CGFloat compassWidth = self.compassBackground.bounds.size.width;
-    CGFloat compassWidthHalf = compassWidth / 2.0;
-
-    CGFloat spinnerHeight = self.compassSpinner.bounds.size.height;
-    CGFloat spinnerHeightHalf = spinnerHeight / 2.0;
-
-    CGFloat spinnerWidth = self.compassSpinner.bounds.size.width;
-    CGFloat spinnerWidthHalf = spinnerWidth / 2.0;
-
-    // Calculate the pull ratio, between 0.0-1.0
-    CGFloat pullRatio = MIN( MAX(pullDistance, 0.0), 100.0) / 100.0;
-
-    // Set the Y coord of the graphics, based on pull distance
-    CGFloat compassY = pullDistance / 2.0 - compassHeightHalf;
-    CGFloat spinnerY = pullDistance / 2.0 - spinnerHeightHalf;
-
-    // Calculate the X coord of the graphics, adjust based on pull ratio
-    CGFloat compassX = (midX + compassWidthHalf) - (compassWidth * pullRatio);
-    CGFloat spinnerX = (midX - spinnerWidth - spinnerWidthHalf) + (spinnerWidth * pullRatio);
-
-    // When the compass and spinner overlap, keep them together
-    if (fabsf(compassX - spinnerX) < 1.0) {
-        self.isRefreshIconsOverlap = YES;
-    }
-
-    // If the graphics have overlapped or we are refreshing, keep them together
-    //Changed to && from ||
-    if (self.isRefreshIconsOverlap || self.refreshControl.isRefreshing) {
-        compassX = midX - compassWidthHalf;
-        spinnerX = midX - spinnerWidthHalf;
-    }
-
-    // Set the graphic's frames
-    CGRect compassFrame = self.compassBackground.frame;
-    compassFrame.origin.x = compassX;
-    compassFrame.origin.y = compassY;
-
-    CGRect spinnerFrame = self.compassSpinner.frame;
-    spinnerFrame.origin.x = spinnerX;
-    spinnerFrame.origin.y = spinnerY;
-
-    self.compassBackground.frame = compassFrame;
-    self.compassSpinner.frame = spinnerFrame;
-
-    // Set the encompassing view's frames
-    refreshBounds.size.height = pullDistance;
-
-    self.refreshColorView.frame = refreshBounds;
-    self.refreshLoadingView.frame = refreshBounds;
-
-    // If we're refreshing and the animation is not playing, then play the animation
-    if (self.refreshControl.isRefreshing && !self.isRefreshAnimating) {
-        [self animateRefreshView];
-        self.isRefreshIconsOverlap = NO;
-    }
-
-    //    NSLog(@"pullDistance: %.1f, pullRatio: %.1f, midX: %.1f, isRefreshing: %i", pullDistance, pullRatio, midX, self.refreshControl.isRefreshing);
-}
-
-- (void)resetAnimation
-{
-    // Reset our flags and background color
-    self.isRefreshAnimating = NO;
-    self.isRefreshIconsOverlap = NO;
-    self.refreshColorView.backgroundColor = [UIColor clearColor];
-}
-
 #pragma mark - UISearchBarDelegate
 
 - (void)searchMessages:(NSString *)search_lower
@@ -1023,7 +881,6 @@
 
     [self.tableView reloadData];
 }
-
 
 -(IBAction)textFieldDidChange:(UITextField *)textField
 {

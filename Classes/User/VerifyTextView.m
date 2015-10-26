@@ -125,7 +125,6 @@
     NSDictionary *parms = [NSDictionary new];
     fieldFirstName.text = [fieldFirstName.text stringByReplacingOccurrencesOfString:@" " withString:@""];
     parms = @{PF_USER_PHONEVERIFICATIONCODE: fieldFirstName.text, PF_USER_USERNAME: phoneNumber};
-
     [PFCloud callFunctionInBackground:@"verifyPhoneNumber" withParameters:parms block:^(id object, NSError *error)
      {
          if (!error)

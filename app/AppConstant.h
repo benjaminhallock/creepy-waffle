@@ -3,6 +3,7 @@
 #import <Parse/Parse.h>
 #import <ParseUI/ParseUI.h>
 #import "UIColor.h"
+#import "NavigationController.h"
 
 @interface AppConstant : NSObject
 + (NSArray *)arrayOfColors;
@@ -13,9 +14,10 @@
 
 #define		PF_INSTALLATION_CLASS_NAME			@"_Installation"		//	Class name
 #define		PF_INSTALLATION_OBJECTID			@"objectId"				//	String
-#define		PF_INSTALLATION_USER				@"user"					//	Pointer to User Class
-#define     PF_KEY_SHOULDVIBRATE                @"shouldVibrate"        //USER DEFFUALTS
+#define		PF_INSTALLATION_USER				@"user"					//	Pointer to
+#define     PF_KEY_SHOULDVIBRATE                @"shouldVibrate"        //USER
 
+//User Class
 #define		PF_USER_CLASS_NAME					@"_User"				//	Class name
 #define		PF_USER_OBJECTID					@"objectId"				//	String
 #define		PF_USER_USERNAME					@"username"				//	String

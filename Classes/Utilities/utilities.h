@@ -4,6 +4,8 @@
 #import "AppConstant.h"
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------
+NSString*       formatPhoneNumberForCountry(NSString *phoneNumber);
+
 void			ShowProfileSettings		    (MessagesView *target);
 void			ShowNewMessage       	    (id target);
 

@@ -6,7 +6,7 @@
 #import "SettingsViewController.h"
 #import "MasterLoginRegisterView.h"
 
-@interface SettingsViewController ()
+@interface SettingsViewController () <UIActionSheetDelegate, UITextFieldDelegate>
 @property (strong, nonatomic) IBOutlet UIView *viewHeader;
 @property (strong, nonatomic) IBOutlet UITableViewCell *cellName;
 @property (strong, nonatomic) IBOutlet UITableViewCell *cellPhoneNumber;

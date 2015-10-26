@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9059" systemVersion="15A284" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9049"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <objects>
@@ -24,6 +24,7 @@
         <tableView opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" bouncesZoom="NO" style="grouped" separatorStyle="default" allowsSelection="NO" rowHeight="60" sectionHeaderHeight="10" sectionFooterHeight="10" id="4">
             <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <animations/>
             <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
             <connections>
                 <outlet property="dataSource" destination="-1" id="6"/>
@@ -39,6 +40,7 @@
                 <subviews>
                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="First" placeholder="First" clearsOnBeginEditing="YES" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="wiw-WP-O7Z">
                         <rect key="frame" x="15" y="0.0" width="290" height="60"/>
+                        <animations/>
                         <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="18"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="words" autocorrectionType="no" returnKeyType="next"/>
                         <connections>
@@ -46,7 +48,9 @@
                         </connections>
                     </textField>
                 </subviews>
+                <animations/>
             </tableViewCellContentView>
+            <animations/>
             <point key="canvasLocation" x="198" y="209"/>
         </tableViewCell>
         <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="n5g-Gd-0J5">
@@ -58,6 +62,7 @@
                 <subviews>
                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Password" placeholder="Password" clearsOnBeginEditing="YES" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="OZ7-2i-VuJ">
                         <rect key="frame" x="15" y="0.0" width="290" height="60"/>
+                        <animations/>
                         <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="18"/>
                         <textInputTraits key="textInputTraits" autocorrectionType="no" returnKeyType="done" secureTextEntry="YES"/>
                         <connections>
@@ -65,7 +70,9 @@
                         </connections>
                     </textField>
                 </subviews>
+                <animations/>
             </tableViewCellContentView>
+            <animations/>
             <point key="canvasLocation" x="198" y="106"/>
         </tableViewCell>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
@@ -78,6 +85,7 @@
                 <subviews>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jmS-wn-XzT">
                         <rect key="frame" x="0.0" y="-1" width="320" height="68"/>
+                        <animations/>
                         <color key="backgroundColor" red="0.31764705879999999" green="0.70588235290000001" blue="0.64705882349999999" alpha="1" colorSpace="calibratedRGB"/>
                         <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="15"/>
                         <state key="normal" title="REGISTER">
@@ -96,6 +104,7 @@
                     </button>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yTJ-kq-xnB">
                         <rect key="frame" x="4" y="66" width="312" height="33"/>
+                        <animations/>
                         <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="9"/>
                         <state key="normal" title="By signing up you agree to our terms of use and our privacy policy.">
                             <color key="titleColor" red="0.78431372549019607" green="0.78431372549019607" blue="0.78431372549019607" alpha="1" colorSpace="calibratedRGB"/>
@@ -106,6 +115,7 @@
                         </connections>
                     </button>
                 </subviews>
+                <animations/>
                 <constraints>
                     <constraint firstItem="jmS-wn-XzT" firstAttribute="leading" secondItem="s8i-O0-Wwd" secondAttribute="leading" id="0oc-0W-k1V"/>
                     <constraint firstAttribute="bottom" secondItem="yTJ-kq-xnB" secondAttribute="bottom" id="BS3-4i-iP1"/>
@@ -117,6 +127,7 @@
                     <constraint firstItem="jmS-wn-XzT" firstAttribute="top" secondItem="s8i-O0-Wwd" secondAttribute="topMargin" constant="-9" id="mDe-FA-FuM"/>
                 </constraints>
             </tableViewCellContentView>
+            <animations/>
             <point key="canvasLocation" x="198" y="352"/>
         </tableViewCell>
         <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="IEL-Pr-Jxb">
@@ -128,6 +139,7 @@
                 <subviews>
                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Phone #" placeholder="Phone #" clearsOnBeginEditing="YES" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="XEj-Xp-NRp">
                         <rect key="frame" x="15" y="0.0" width="290" height="60"/>
+                        <animations/>
                         <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="18"/>
                         <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="phonePad" returnKeyType="next"/>
                         <connections>
@@ -135,7 +147,9 @@
                         </connections>
                     </textField>
                 </subviews>
+                <animations/>
             </tableViewCellContentView>
+            <animations/>
             <point key="canvasLocation" x="198" y="115"/>
         </tableViewCell>
         <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="kZS-Od-nhm">
@@ -147,6 +161,7 @@
                 <subviews>
                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Last" placeholder="Last" clearsOnBeginEditing="YES" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="siH-7b-hYe">
                         <rect key="frame" x="15" y="0.0" width="290" height="60"/>
+                        <animations/>
                         <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="18"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="words" autocorrectionType="no" returnKeyType="next"/>
                         <connections>
@@ -154,7 +169,9 @@
                         </connections>
                     </textField>
                 </subviews>
+                <animations/>
             </tableViewCellContentView>
+            <animations/>
             <point key="canvasLocation" x="198" y="-2"/>
         </tableViewCell>
     </objects>

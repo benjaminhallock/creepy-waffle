@@ -6,7 +6,6 @@
 #import <Photos/Photos.h>
 #import "utilities.h"
 #import "PictureViewController.h"
-#import <MediaPlayer/MediaPlayer.h>
 
 @interface CustomCameraView () <UIImagePickerControllerDelegate, UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate, UIScrollViewDelegate, UIAlertViewDelegate, PictureViewerDelegate>
 
@@ -36,7 +35,6 @@
 @property (strong, nonatomic) UIPageControl *pageControl;
 @property UIScrollView *scrollViewPop;
 @property UIActivityIndicatorView *spinner;
-@property MPMoviePlayerController *mp;
 
 @property BOOL isCapturingVideo;
 @property (atomic) int captureVideoNowCounter;
@@ -228,10 +226,12 @@
 //PART OF CAMERA TOUCHDOWN EVENT.
 - (IBAction)buttonRelease:(UIButton *)button
 {
-    [UIView animateWithDuration:.3f animations:^{
+    [UIView animateWithDuration:1.0f delay:1.0
+         usingSpringWithDamping:0.2f initialSpringVelocity:0
+                        options:0 animations:^{
         button.transform = CGAffineTransformMakeScale(.8,.8);
         button.transform = CGAffineTransformMakeScale(1.2, 1.2);
-    }];
+    } completion:0];
 }
 
 - (IBAction)onTakePhotoPressed:(UIButton *)button
@@ -248,7 +248,7 @@
 
     if (self.captureSession)
     {
-        [self captureNow];
+        [self captureImageNow];
     }
 }
 
@@ -298,19 +298,10 @@
 {
     if (_isCameraRollEnabled == NO)
     {
-        if([[[UIDevice currentDevice] systemVersion] floatValue]<8.0)
-        {
-            UIAlertView* curr1=[[UIAlertView alloc] initWithTitle:@"Photos Not Enabled" message:@"Settings -> Snap Ben -> Photos" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil, nil];
-            curr1.tag = 1;
-            [curr1 show];
-        }
-        else
-        {
             UIAlertView* curr2=[[UIAlertView alloc] initWithTitle:@"Photos Not Enabled" message:@"Settings -> Snap Ben -> Photos" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Settings", nil];
-            curr2.tag = 1;
             [curr2 show];
-        }
-    } else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary])
+    }
+    else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary])
     {
         self.picker = [[UIImagePickerController alloc] init];
 
@@ -335,6 +326,7 @@
     }
 }
 
+#warning NOT USED
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
 
@@ -545,22 +537,18 @@
 
     AVCaptureSession *session = [[AVCaptureSession alloc] init];
 
-    session.sessionPreset = AVCaptureSessionPresetHigh; //FULL SCREEN;
-    //    session.sessionPreset = AVCaptureSessionPresetPhoto;
-
-    //    NOT USED YET
-    //    CGRect layerRect = [[[self view] layer] bounds];
-    //    [self.videoPreviewView setBounds:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
-    //    CGPoint point = CGPointMake(CGRectGetMidY(layerRect), CGRectGetMidX(layerRect));
+    session.sessionPreset = AVCaptureSessionPresetHigh;
 
     // Find a suitable AVCaptureDevice
     self.device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 
-    [self setFlashMode:AVCaptureFlashModeOn forDevice:self.device];
+    [self setFlashMode:AVCaptureFlashModeOff forDevice:self.device];
 
-    if ([self.device isFocusPointOfInterestSupported] && [self.device isFocusModeSupported:AVCaptureFocusModeAutoFocus])
+    if ([self.device isFocusPointOfInterestSupported] && [self.device isFocusModeSupported:AVCaptureFocusModeAutoFocus] && [self.device lockForConfiguration:0])
     {
-        [self didTapForFocusAndExposurePoint:self.view.gestureRecognizers.lastObject];
+        [self.device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+        [self.device setFocusPointOfInterest:self.view.center];
+        [self.device unlockForConfiguration];
     }
 
     // Create a device input with the device and add it to the session.
@@ -568,45 +556,13 @@
                                                                         error:&error];
     if (!input)
     {
-        NSLog(@"No Camera Input");
-
-        if([[[UIDevice currentDevice] systemVersion] floatValue]<8.0)
-        {
-            UIAlertView* curr1=[[UIAlertView alloc] initWithTitle:@"Camera not enabled" message:@"Settings -> Snap Ben -> Camera" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil, nil];
-            curr1.tag = 121;
-            [curr1 show];
-        }
-        else
-        {
             UIAlertView* curr2=[[UIAlertView alloc] initWithTitle:@"Camera not enabled" message:@"Settings -> Snap Ben -> Camera" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Settings", nil];
-            curr2.tag=121;
             [curr2 show];
-        }
-
         return;
-    }
-
-    if ([session canAddInput:input])
+    } else if ([session canAddInput:input])
     {
         [session addInput:input];
     }
-
-    // Create a VideoDataOutput and add it to the session
-    AVCaptureVideoDataOutput *output = [[AVCaptureVideoDataOutput alloc] init];
-    if ([session canAddOutput:output])
-    {
-        [session addOutput:output];
-    }
-
-    // Configure your output.
-    dispatch_queue_t queue = dispatch_queue_create("myQueue", NULL);
-    [output setSampleBufferDelegate:self queue:queue];
-
-    // Specify the pixel format
-    output.videoSettings =
-    [NSDictionary dictionaryWithObject:
-     [NSNumber numberWithInt:kCVPixelFormatType_32BGRA]
-                                forKey:(id)kCVPixelBufferPixelFormatTypeKey];
 
     //Stackoverflow help
     dispatch_queue_t layerQ = dispatch_queue_create("layerQ", NULL);
@@ -614,6 +570,7 @@
                    {
                        // Start the session running to start the flow of data
                        [session startRunning];
+
 
                        self.stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
                        NSDictionary *outputSettings = [[NSDictionary alloc] initWithObjectsAndKeys: AVVideoCodecJPEG, AVVideoCodecKey, nil];
@@ -625,13 +582,14 @@
                            [session addOutput:self.stillImageOutput];
                        }
 
+
                        self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
                        self.movieFileOutput.minFreeDiskSpaceLimit = 1024*1024*10; // 10 MB
                        self.movieFileOutput.maxRecordedDuration = CMTimeMake(10, 1);
 
-                       if ([session canAddOutput:_movieFileOutput])
+                       if ([session canAddOutput:self.movieFileOutput])
                        {
-                           [session addOutput:_movieFileOutput];
+                           [session addOutput:self.movieFileOutput];
                        }
 
                        // Assign session to an ivar.
@@ -648,7 +606,8 @@
                        //Main thread does GUI
                        dispatch_async(dispatch_get_main_queue(), ^
                                       {
-                                          [self.videoPreviewView.layer addSublayer:previewLayer];
+//                                        [self.videoPreviewView.layer addSublayer:previewLayer];
+                                          [self.view.layer insertSublayer:previewLayer atIndex:0];
                                           self.takePictureButton.userInteractionEnabled = YES;
                                           self.takePictureButton.userInteractionEnabled = YES;
                                           self.switchCameraButton.userInteractionEnabled = YES;
@@ -660,28 +619,6 @@
                    });
 }
 
--(void)deallocSession
-{
-    [self.videoPreviewView.layer.sublayers.lastObject removeFromSuperlayer];
-    for(AVCaptureInput *input1 in self.captureSession.inputs) {
-        [self.captureSession removeInput:input1];
-    }
-
-    for (AVCaptureOutput *output1 in self.captureSession.outputs)
-    {
-        [self.captureSession removeOutput:output1];
-    }
-
-    [self.captureSession stopRunning];
-    self.captureSession = nil;
-    self.stillImageOutput = nil;
-    self.device = nil;
-
-    //    input=nil;
-    //    captureVideoPreviewLayer=nil;
-    //    stillImageOutput=nil;
-    //    self.vImagePreview=nil;
-}
 
 -(void) didTapForFocusAndExposurePoint:(UITapGestureRecognizer *)point
 {
@@ -730,50 +667,46 @@
 {
     if (point.state == UIGestureRecognizerStateBegan)
     {
-        CGPoint save = [point locationInView:self.view];
-        NSString *save2 = {NSStringFromCGPoint(save)};
-        NSLog(@"%@ OLD", save2);
-       CGPoint saveNew = CGPointMake(save.y/self.view.frame.size.height, (1 -save.x/self.view.frame.size.width));
-        save2 = NSStringFromCGPoint(saveNew);
-        NSLog(@"%@ NEW", save2);
 
+//      Calculate based on landscape point
+        CGPoint save = [point locationInView:self.view];
+        NSLog(@"%@ OLD", NSStringFromCGPoint(save));
+       CGPoint saveNew = CGPointMake(save.y/self.view.frame.size.height, (1 -save.x/self.view.frame.size.width));
+        NSLog(@"%@ NEW", NSStringFromCGPoint(saveNew));
+
+//        IF you held down the camera button
         if (CGRectContainsPoint(self.takePictureButton.frame, save))
         {
-            _isCapturingVideo = YES;
-            NSLog(@"VIDEO");
+            self.isCapturingVideo = YES;
+            NSLog(@"VIDEO STARTING");
 
             //ADD AUDIO INPUT
 #warning WILL CAUSE RED BAR IF YOU DONT DISABLE IT.
             NSLog(@"Adding audio input");
+
+            [self.captureSession beginConfiguration];
             AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
             NSError *error2 = nil;
             self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error2];
-
-            if (self.audioInput && [_captureSession canAddInput:self.audioInput])
+            if (self.audioInput && [self.captureSession canAddInput:self.audioInput])
             {
                 [self.captureSession addInput:self.audioInput];
             }
             else
             {
-                if([[[UIDevice currentDevice] systemVersion] floatValue] < 8.0)
-                {
-                    UIAlertView *curr1 = [[UIAlertView alloc] initWithTitle:@"Microphone Not Enabled" message:@"Settings -> SnapBen -> Microphone" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
-                    curr1.tag = 66;
-                    [curr1 show];
-                }
-                else
-                {
-                    UIAlertView *curr2 = [[UIAlertView alloc] initWithTitle:@"Microphone Not Enabled" message:@"Settings -> SnapBen -> Microphone" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:@"Settings", nil];
-                    curr2.tag = 66;
+                UIAlertView *curr2 = [[UIAlertView alloc] initWithTitle:@"Microphone Not Enabled" message:@"Settings -> SnapBen -> Microphone" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Settings", nil];
                     [curr2 show];
-                }
                 NSLog(@"NO AUDIO");
                 return;
             }
 
-            [_timer invalidate];
+            [self.captureSession commitConfiguration];
+
+#warning BUTTON DOESN"T RESET IF YOU HOLD DOWN FOR TEN SECONDS
+            [self.timer invalidate];
             [self startCircle];
             self.startDate = [NSDate date];
+
             [self.takePictureButton setImage:[UIImage imageNamed:@"snap2"] forState:UIControlStateNormal];
             self.timerForRecButton = [NSTimer scheduledTimerWithTimeInterval:1.0f target:self selector:@selector(bounceRecButton) userInfo:0 repeats:1];
 
@@ -787,7 +720,8 @@
         }
         else
         {
-            if ([self.device lockForConfiguration:0] && self.isCapturingVideo == false)
+//           ELSE YOUR HOLDING SCREEN FOR LOCK A&E
+            if ([self.device lockForConfiguration:0] && self.isCapturingVideo == false && [self.device isFocusModeSupported:AVCaptureFocusModeLocked])
             {
                 if (point)
                 {
@@ -803,27 +737,11 @@
     }
     else if (point.state ==UIGestureRecognizerStateEnded)
     {
-        if (_isCapturingVideo)
+        if (self.isCapturingVideo)
         {
-            _isCapturingVideo = NO;
+            self.isCapturingVideo = NO;
             NSLog(@"STOPPING VIDEO");
             [self captureStopVideoNow];
-
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [UIView animateWithDuration:.3f animations:^
-                 {
-                     self.takePictureButton.transform = CGAffineTransformMakeScale(1.8,1.8);
-                     self.takePictureButton.transform = CGAffineTransformMakeScale(1,1);
-                     self.takePictureButton.transform = CGAffineTransformMakeScale(1.8,1.8);
-                     self.takePictureButton.transform = CGAffineTransformMakeScale(1,1);
-                 }];
-                [self.takePictureButton setImage:[UIImage imageNamed:@"snap1"] forState:UIControlStateNormal];
-            });
-
-            [self.timerForRecButton invalidate];
-            [self.progressTimer invalidate];
-
-
         }
     }
 }
@@ -864,49 +782,11 @@
     [self.circle addAnimation:drawAnimation forKey:@"drawCircleAnimation"];
 }
 
--(void)startCircle2
-{
-    // Set up the shape of the circle
-    int radius = 80;
-    self.circle = [CAShapeLayer layer];
-    // Make a circular shape
-    self.circle.path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, radius, radius) cornerRadius:radius].CGPath;
-
-    // Center the shape in self.view
-    self.circle.position = CGPointMake(CGRectGetMidX(self.view.frame)-radius/2 + 2,
-                                  self.view.frame.size.height - radius * 1.2);
-
-    // Configure the apperence of the circle
-    self.circle.fillColor = [UIColor clearColor].CGColor;
-    self.circle.strokeColor = [UIColor redColor].CGColor;
-    self.circle.lineWidth = 5;
-
-    // Add to parent layer
-    [self.view.layer addSublayer:self.circle];
-
-    // Configure animation
-    CABasicAnimation *drawAnimation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
-    drawAnimation.duration            = 10.0; // "animate over 10 seconds or so.."
-    drawAnimation.repeatCount         = 1.0;  // Animate only once..
-
-    // Animate from no part of the stroke being drawn to the entire stroke being drawn
-    drawAnimation.fromValue = [NSNumber numberWithFloat:0.0f];
-    drawAnimation.toValue   = [NSNumber numberWithFloat:1.0f];
-
-    // Experiment with timing to get the appearence to look the way you want
-    drawAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-    
-    // Add the animation to the circle
-    [self.circle addAnimation:drawAnimation forKey:@"drawCircleAnimation"];
-}
-
 -(void)stopCircle
 {
     [self.circle removeAllAnimations];
     [self.circle removeFromSuperlayer];
 }
-
-
 
 -(IBAction)switchCameraTapped:(id)sender
 {
@@ -955,7 +835,7 @@
     return nil;
 }
 
-- (void)captureNow
+- (void)captureImageNow
 {
     self.takePictureButton.userInteractionEnabled = NO;
 
@@ -1055,17 +935,24 @@
 -(void)captureStopVideoNow
 {
     [self.movieFileOutput stopRecording];
+}
 
-    [self stopCircle];
-
-    [_captureSession removeInput:self.audioInput];
+-(void) endVideoResetButton
+{
+    dispatch_async(dispatch_get_main_queue(), ^
+    {
+        [self stopCircle];
+        [self.takePictureButton setImage:[UIImage imageNamed:@"snap1"] forState:UIControlStateNormal];
+    });
+    [self.captureSession removeInput:self.audioInput];
+    [self.timerForRecButton invalidate];
+    [self.progressTimer invalidate];
 }
 
 -(void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error
 {
     NSLog(@"FINISH");
-
-    [self stopCircle];
+    [self endVideoResetButton];
 
     AVAsset *movie = [AVAsset assetWithURL:outputFileURL];
     CMTime movieLength = movie.duration;
@@ -1078,9 +965,8 @@
             [self performSelector:@selector(onTakePhotoPressed:) withObject:self.takePictureButton afterDelay:.5];
             [ProgressHUD dismiss];
         }
-        else
-            if (CMTimeCompare(movieLength, CMTimeMake(11, 1)) == -1)
-            {
+        else if (CMTimeCompare(movieLength, CMTimeMake(11, 1)) == -1)
+        {
                 NSLog(@"GOOD MOVIE");
 
                 [ProgressHUD show:@""];
@@ -1092,8 +978,6 @@
                 NSError *err = NULL;
                 CMTime time = kCMTimeZero;
                 CGImageRef oneRef = [generate1 copyCGImageAtTime:time actualTime:NULL error:&err];
-
-
 //                Making output url to convert the video to. with a thumbnail
                 __block UIImage *one = [[UIImage alloc] initWithCGImage:oneRef];
                 __block UIImage *video = [UIImage imageNamed:@"video"];
@@ -1125,32 +1009,30 @@
                                });
 
                 //Convert this giant file to something more managable.
-                [self convertVideoToLowQuailtyWithInputURL:outputFileURL outputURL:outputURL handler:^(NSURL *output, bool success) {
+                [self convertVideoToLowQuailtyWithInputURL:outputFileURL outputURL:outputURL handler:^(NSURL *output, bool success){
                     if (success) {
 //                        SENDING BACK THE VIDEO AND THUMBNAIL
                         [self ShowVideo:one andURL:output];
                         [ProgressHUD showSuccess:@""];
-
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [UIView animateWithDuration:.3f animations:^{
-//                                self.collectionView.userInteractionEnabled = true;
-//                                self.collectionView.alpha = 1.0f;
                                 self.takePictureButton.userInteractionEnabled = 1;
                                 self.takePictureButton.alpha = 1;
                             }];
-                            NSLog(@"SUCCESS");
                         });
                     } else {
-                        NSLog(@"FAIL");
+                        NSLog(@"FAILED VIDEO CONVERSION");
                     }
                 }];
-
-                return;
-            } else {
+            return;
+        }
+        else
+        {
+//            Shouldn't happen but incase it somehow was.
                 NSLog(@"BAD MOVIE");
                 [ProgressHUD showError:@"Video Too Long (10s)"];
                 return;
-            }
+        }
     }
 }
 
@@ -1160,20 +1042,27 @@
 {
     AVURLAsset *asset = [AVURLAsset URLAssetWithURL:inputURL options:nil];
     AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetMediumQuality];
+#warning DOWNGRADED FROM HIGH QUALITY
     exportSession.outputURL = outputURL;
     exportSession.outputFileType =AVFileTypeQuickTimeMovie;
 
     [exportSession exportAsynchronouslyWithCompletionHandler:^{
         if (exportSession.status == AVAssetExportSessionStatusCompleted)
         {
-            //Need main thread for gui stuff.
             dispatch_async(dispatch_get_main_queue(), ^{
                 handler(outputURL,true);
             });
-        } else if (exportSession.status == AVAssetExportSessionStatusFailed)
+        }
+        else if (exportSession.status == AVAssetExportSessionStatusFailed)
         {
             dispatch_async(dispatch_get_main_queue(), ^{
                 handler(0,false);
+            });
+        }
+        else
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+            handler(0, false);
             });
         }
     }];
@@ -1181,24 +1070,16 @@
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    if (buttonIndex != alertView.cancelButtonIndex && alertView.tag
-        == 66)
-    {
+    if (buttonIndex != alertView.cancelButtonIndex) {
         //code for opening settings app in iOS 8
         [[UIApplication sharedApplication] openURL:[NSURL  URLWithString:UIApplicationOpenSettingsURLString]];
     }
-    if (buttonIndex != alertView.cancelButtonIndex && alertView.tag
-        == 1)
+    else
     {
-        //code for opening settings app in iOS 8
-        [[UIApplication sharedApplication] openURL:[NSURL  URLWithString:UIApplicationOpenSettingsURLString]];
+        [self dismissViewControllerAnimated:1 completion:0];
     }
-    if (buttonIndex != alertView.cancelButtonIndex && alertView.tag
-        == 121)
-    {
-        //code for opening settings app in iOS 8
-        [[UIApplication sharedApplication] openURL:[NSURL  URLWithString:UIApplicationOpenSettingsURLString]];
-    }
+
+
 }
 
 //Save to camera roll
@@ -1219,16 +1100,26 @@
     NSLog(@"DROPPING");
 }
 
--(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+-(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
+{
+    // Add your code here that uses the image.
 }
 
 -(void)bounceRecButton
 {
+    [UIView animateWithDuration:0.5f delay:0 usingSpringWithDamping:0.4 initialSpringVelocity:0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        self.takePictureButton.transform = CGAffineTransformMakeScale(1.2,1.2);
+        self.takePictureButton.transform = CGAffineTransformMakeScale(1.8,1.8);
+        self.takePictureButton.transform = CGAffineTransformMakeScale(1.2,1.2);
+        } completion:0];
+
+    /*
     [UIView animateKeyframesWithDuration:.5f delay:0.0f options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
         self.takePictureButton.transform = CGAffineTransformMakeScale(1.0,1.0);
         self.takePictureButton.transform = CGAffineTransformMakeScale(2.0,2.0);
         self.takePictureButton.transform = CGAffineTransformMakeScale(1.0,1.0);
     } completion:0];
+     */
 }
 
 -(void)ShowPicture:(UIImage *)image
@@ -1366,80 +1257,6 @@
     [player play];
 
     return view;
-}
-
-- (void)didTap:(UITapGestureRecognizer *)tap
-{
-    [[UIApplication sharedApplication] setStatusBarHidden:1 withAnimation:UIStatusBarAnimationSlide];
-
-    for (MPMoviePlayerController *object in self.arrayOfScrollview)
-    {
-        if ([object isKindOfClass:[MPMoviePlayerController class]])
-        {
-            [object stop];
-            object.view.alpha = 0;
-        }
-    }
-    self.scrollViewPop = nil;
-    self.arrayOfScrollview = nil;
-}
-
--(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
-{
-    //Stop the self.movieplayer in the button.
-    //Unhide all the buttons back
-
-    for (MPMoviePlayerController *object in self.arrayOfScrollview)
-    {
-        if ([object isKindOfClass:[MPMoviePlayerController class]])
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [object stop];
-                //                    [object setCurrentPlaybackTime:0.0f];
-                //                    [object prepareToPlay];
-            });
-        }
-    }
-}
-
--(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
-{
-    if (scrollView.tag == 22)
-    {
-        int x = (int)roundf(scrollView.contentOffset.x);
-        int y = (int)self.view.frame.size.width;
-        
-        if (x % y == 0)
-        {
-            _isDoneScrolling = NO;
-        }
-        
-        CGFloat index = scrollView.contentOffset.x / self.view.frame.size.width;
-        
-        int xx = roundf(index);
-        
-        dispatch_async(dispatch_get_main_queue(),^{
-
-            [self.pageControl setCurrentPage:(xx)];
-        });
-        
-        if (_isDoneScrolling == NO)
-        {
-            _isDoneScrolling = YES;
-            if ([[self.arrayOfScrollview objectAtIndex:index] isKindOfClass:[MPMoviePlayerController class]])
-            {
-                [(MPMoviePlayerController *)[self.arrayOfScrollview objectAtIndex:index] play];
-            }
-        }
-    }
-}
-
--(void)checkMovieStatus:(NSNotification *)notification
-{
-    if(self.mp.readyForDisplay)
-    {
-        [self.mp play];
-    }
 }
 
 - (UIImage *) drawImage:(UIImage *)fgImage

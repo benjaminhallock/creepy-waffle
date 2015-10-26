@@ -12,7 +12,7 @@
 @interface PictureViewController () <UITextFieldDelegate>
 
 @property (weak, nonatomic) IBOutlet UITextField *textField;
-@property MPMoviePlayerController *moviePlayer;
+@property (strong, nonatomic) MPMoviePlayerController *moviePlayer;
 @end
 
 @implementation PictureViewController
@@ -69,27 +69,31 @@
 
 -(void)loadMovie
 {
+#warning Movie is lower resolution than screen, can't stretch to fill.
     moviePlayer = [[MPMoviePlayerController alloc] initWithContentURL:self.videoURL];
-    moviePlayer.view.frame = CGRectMake(30, 30, self.view.frame.size.width - 30, self.view.frame.size.height - 30);
+    moviePlayer.view.frame = self.view.bounds;
+
 //    moviePlayer.view.frame = self.view.frame;
-    moviePlayer.view.transform = CGAffineTransformMakeScale(1.4f, 1.4f);
-    moviePlayer.shouldAutoplay = true;
+//    moviePlayer.view.transform = CGAffineTransformMakeScale(1.4f, 1.4f);
+      moviePlayer.shouldAutoplay = true;
+
 //    moviePlayer.view.layer.shouldRasterize = 1;
 //    moviePlayer.view.layer.rasterizationScale = [UIScreen mainScreen].scale;
-    moviePlayer.view.layer.masksToBounds = YES;
-    moviePlayer.view.contentMode = UIViewContentModeScaleToFill;
+//    moviePlayer.view.layer.masksToBounds = YES;
+//    moviePlayer.view.contentMode = UIViewContentModeScaleToFill;
 //    moviePlayer.view.layer.cornerRadius = moviePlayer.view.frame.size.width/10;
 //    moviePlayer.view.layer.borderColor = [UIColor whiteColor].CGColor;
+
+    moviePlayer.scalingMode = MPMovieScalingModeFill;
     moviePlayer.view.layer.borderWidth = 1;
     moviePlayer.view.layer.cornerRadius = 10;
     moviePlayer.view.userInteractionEnabled = 1;
     moviePlayer.view.clipsToBounds = YES;
-    moviePlayer.scalingMode = MPMovieScalingModeAspectFill;
     moviePlayer.movieSourceType = MPMovieSourceTypeFile;
     moviePlayer.controlStyle = MPMovieControlStyleNone;
     moviePlayer.repeatMode = MPMovieRepeatModeOne;
     moviePlayer.backgroundView.alpha = 0;
-
+    
     [self.view insertSubview:moviePlayer.view atIndex:1];
 
     [moviePlayer play];
